@@ -1,15 +1,31 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, FileSpreadsheet, AlertCircle } from "lucide-react";
+import { Upload, FileSpreadsheet, AlertCircle, BarChart3, Download, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useToast } from "@/hooks/use-toast";
+import { useDashboard } from "@/hooks/useDashboard";
 
 const ChimpChart = () => {
-  const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const { toast } = useToast();
+  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
+
+  const {
+    fileId,
+    analysis,
+    kpis,
+    visualizations,
+    dashboard,
+    isLoading,
+    error,
+    uploadFile,
+    analyzeData,
+    generateKPIs,
+    generateVisualizations,
+    generateDashboard,
+    generatePDF,
+    resetDashboard
+  } = useDashboard();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -23,60 +39,54 @@ const ChimpChart = () => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const droppedFile = e.dataTransfer.files[0];
-    validateAndSetFile(droppedFile);
+    if (droppedFile) {
+      uploadFile(droppedFile, userPlan);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      validateAndSetFile(selectedFile);
+      uploadFile(selectedFile, userPlan);
     }
   };
 
-  const validateAndSetFile = (file: File) => {
-    const validTypes = [
-      'text/csv',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ];
-    
-    if (validTypes.includes(file.type) || file.name.endsWith('.csv') || file.name.endsWith('.xls') || file.name.endsWith('.xlsx')) {
-      setFile(file);
-      toast({
-        title: "File uploaded successfully",
-        description: `${file.name} is ready to be analyzed.`,
-      });
-    } else {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload a CSV or Excel file (.csv, .xls, .xlsx)",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleAnalyze = () => {
-    if (!file) {
-      toast({
-        title: "No file selected",
-        description: "Please upload a file first.",
-        variant: "destructive",
-      });
+  const handleAnalyze = async () => {
+    if (!fileId) {
       return;
     }
 
-    toast({
-      title: "Coming soon!",
-      description: "Dashboard generation will be available once the backend is connected.",
-    });
+    try {
+      await analyzeData(userPlan);
+      await generateKPIs(userPlan);
+      await generateVisualizations(userPlan);
+      await generateDashboard({ userPlan });
+    } catch (error) {
+      console.error('Analysis failed:', error);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!dashboard) return;
+
+    const pdfUrl = await generatePDF({}, userPlan);
+    if (pdfUrl) {
+      // Create download link
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = `${dashboard.title || 'dashboard'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      
+
       <div className="flex-1 pt-24 pb-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
@@ -101,11 +111,10 @@ const ChimpChart = () => {
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 ${
-                    isDragging
+                  className={`border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 ${isDragging
                       ? 'border-primary bg-primary/5'
                       : 'border-border hover:border-primary/50'
-                  }`}
+                    }`}
                 >
                   <input
                     type="file"
@@ -116,16 +125,16 @@ const ChimpChart = () => {
                   />
                   <label htmlFor="file-upload" className="cursor-pointer">
                     <div className="flex flex-col items-center gap-4">
-                      {file ? (
+                      {fileId ? (
                         <>
                           <FileSpreadsheet className="h-16 w-16 text-primary" />
                           <div>
-                            <p className="text-lg font-semibold">{file.name}</p>
+                            <p className="text-lg font-semibold">File uploaded successfully</p>
                             <p className="text-sm text-muted-foreground">
-                              {(file.size / 1024).toFixed(2)} KB
+                              Ready for analysis
                             </p>
                           </div>
-                          <Button variant="outline" type="button">
+                          <Button variant="outline" type="button" onClick={resetDashboard}>
                             Choose Different File
                           </Button>
                         </>
@@ -146,15 +155,55 @@ const ChimpChart = () => {
                   </label>
                 </div>
 
-                {file && (
-                  <div className="mt-6">
-                    <Button
-                      onClick={handleAnalyze}
-                      className="w-full bg-gradient-primary hover:shadow-glow transition-all duration-300"
-                      size="lg"
-                    >
-                      Analyze & Generate Dashboard
-                    </Button>
+                {fileId && (
+                  <div className="mt-6 space-y-4">
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleAnalyze}
+                        disabled={isLoading}
+                        className="flex-1 bg-gradient-primary hover:shadow-glow transition-all duration-300"
+                        size="lg"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Sparkles className="mr-2 h-5 w-5 animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <BarChart3 className="mr-2 h-5 w-5" />
+                            Analyze & Generate Dashboard
+                          </>
+                        )}
+                      </Button>
+                    </div>
+
+                    {dashboard && (
+                      <div className="space-y-4">
+                        <div className="p-4 bg-muted/50 rounded-lg">
+                          <h3 className="font-semibold mb-2">Dashboard Generated!</h3>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            {dashboard.description}
+                          </p>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={handleDownloadPDF}
+                              variant="outline"
+                              size="sm"
+                            >
+                              <Download className="mr-2 h-4 w-4" />
+                              Download PDF
+                            </Button>
+                            <Button
+                              onClick={() => window.open(`/dashboard/${dashboard.id}`, '_blank')}
+                              size="sm"
+                            >
+                              View Dashboard
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
