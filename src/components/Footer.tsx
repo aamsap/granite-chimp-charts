@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BarChart3 } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
@@ -8,9 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-primary">
-                <BarChart3 className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <img src={logo} alt="Chimp Chart" className="h-10 w-10" />
               <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">
                 Chimp Chart
               </span>

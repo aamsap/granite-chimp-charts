@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BarChart3 } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Navbar = () => {
   const location = useLocation();
@@ -11,9 +11,7 @@ const Navbar = () => {
     <nav className="fixed top-0 w-full bg-card/80 backdrop-blur-lg border-b border-border z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-bold text-xl">
-          <div className="p-2 rounded-lg bg-gradient-primary">
-            <BarChart3 className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <img src={logo} alt="Chimp Chart" className="h-10 w-10" />
           <span className="bg-gradient-primary bg-clip-text text-transparent">
             Chimp Chart
           </span>
