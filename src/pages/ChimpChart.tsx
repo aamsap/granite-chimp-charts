@@ -231,15 +231,28 @@ const ChimpChart = () => {
                         </div>
 
                         {/* AI Analysis Results */}
+                        {console.log('Analysis data being passed to AnalysisResults:', analysis)}
+                        {console.log('Analysis dashboard:', analysis.dashboard)}
+                        {console.log('Analysis insights:', analysis.insights)}
+                        {console.log('Analysis kpis:', analysis.kpis)}
+                        {console.log('Analysis visualizations:', analysis.visualizations)}
+                        
+                        <div className="border border-red-200 p-4 rounded-lg">
+                          <h4 className="font-semibold text-red-800 mb-2">Debug Info:</h4>
+                          <pre className="text-xs text-red-600 overflow-auto max-h-32">
+                            {JSON.stringify(analysis, null, 2)}
+                          </pre>
+                        </div>
+
                         <AnalysisResults 
                           analysis={{
                             dataType: analysis.dataType,
                             insights: analysis.insights || [],
                             kpis: analysis.kpis || [],
                             visualizations: analysis.visualizations || [],
-                            dashboard: { 
-                              title: analysis.dashboard.title, 
-                              description: analysis.dashboard.description 
+                            dashboard: analysis.dashboard || { 
+                              title: 'Dashboard - Data Analysis', 
+                              description: 'AI-powered analysis of your data' 
                             },
                             confidence: analysis.confidence,
                             processingTime: analysis.processingTime,

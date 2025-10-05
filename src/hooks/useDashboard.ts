@@ -42,7 +42,8 @@ export const useDashboard = (): UseDashboardReturn => {
 
       console.log('✅ Analysis successful:', analysisResponse);
 
-      const analysisData = analysisResponse.data!.analysis;
+      const analysisData = analysisResponse.analysis || analysisResponse.data?.analysis;
+      console.log('Analysis data extracted:', analysisData);
 
       // Set analysis data
       setAnalysis({
