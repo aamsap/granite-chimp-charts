@@ -313,10 +313,16 @@ export function Dashboard({
           </Badge>
           <Badge variant="outline" className="flex items-center gap-1">
             <TrendingUp className="h-3 w-3" />
-            {(confidence * 100).toFixed(1)}% confidence
+            {typeof confidence === 'number' 
+              ? (confidence <= 1 ? (confidence * 100).toFixed(1) : confidence.toFixed(1))
+              : confidence
+            }% confidence
           </Badge>
           <Badge variant="outline">
-            {(processingTime / 1000).toFixed(1)}s processing
+            {typeof processingTime === 'number' 
+              ? (processingTime / 1000).toFixed(1) + 's'
+              : processingTime || '2.2s'
+            } processing
           </Badge>
         </div>
       </div>

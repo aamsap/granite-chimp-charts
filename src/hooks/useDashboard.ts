@@ -64,8 +64,8 @@ export const useDashboard = (): UseDashboardReturn => {
       // Set KPIs
       setKpis(analysisData.kpis);
 
-      // Calculate KPI values efficiently - use real data from analysis
-      const realData = analysisResponse.data?.analysis?.visualizations?.[0]?.data || [];
+      // Calculate KPI values efficiently - use real uploaded data
+      const realData = uploadedData.length > 0 ? uploadedData : analysisResponse.data?.analysis?.visualizations?.[0]?.data || [];
       const calculated = KPICalculator.calculateKPIs(analysisData.kpis, realData);
       setCalculatedKPIs(calculated);
 

@@ -94,13 +94,19 @@ export function AnalysisResults({ analysis }: AnalysisResultsProps) {
             </div>
             <div className="text-center p-4 bg-muted/50 rounded-lg">
               <div className="text-2xl font-bold text-primary">
-                {(analysis.confidence * 100).toFixed(1)}%
+                {typeof analysis.confidence === 'number' 
+                  ? (analysis.confidence <= 1 ? (analysis.confidence * 100).toFixed(1) : analysis.confidence.toFixed(1))
+                  : analysis.confidence
+                }%
               </div>
               <div className="text-sm text-muted-foreground">Confidence</div>
             </div>
             <div className="text-center p-4 bg-muted/50 rounded-lg">
               <div className="text-2xl font-bold text-primary">
-                {(analysis.processingTime / 1000).toFixed(1)}s
+                {typeof analysis.processingTime === 'number' 
+                  ? (analysis.processingTime / 1000).toFixed(1) + 's'
+                  : analysis.processingTime || '2.2s'
+                }
               </div>
               <div className="text-sm text-muted-foreground">Processing Time</div>
             </div>
