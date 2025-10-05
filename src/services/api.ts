@@ -10,6 +10,7 @@ import {
   VisualizationData 
 } from '@/types';
 import { ErrorHandler } from '@/utils/errorHandler';
+import * as XLSX from 'xlsx';
 
 class ApiService {
   private static async request<T>(
@@ -64,8 +65,8 @@ class ApiService {
 
   // File Upload - Client-side parsing
   static async uploadFile(file: File, userPlan: UserPlan = 'free'): Promise<ApiResponse<UploadResponse>> {
-    // Parse CSV on client side
-    const parsedData = await this.parseCSVFile(file);
+    // Parse file based on type
+    const parsedData = await this.parseFile(file);
     
     const url = `${config.apiUrl}/upload`;
 
@@ -108,6 +109,19 @@ class ApiService {
     }
   }
 
+  // Client-side file parsing (CSV and Excel)
+  private static async parseFile(file: File): Promise<any[]> {
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    
+    if (fileExtension === '.csv') {
+      return this.parseCSVFile(file);
+    } else if (fileExtension === '.xls' || fileExtension === '.xlsx') {
+      return this.parseExcelFile(file);
+    } else {
+      throw new Error(`Unsupported file type: ${fileExtension}`);
+    }
+  }
+
   // Client-side CSV parsing
   private static async parseCSVFile(file: File): Promise<any[]> {
     return new Promise((resolve, reject) => {
@@ -147,6 +161,54 @@ class ApiService {
       
       reader.onerror = () => reject(new Error('Failed to read file'));
       reader.readAsText(file);
+    });
+  }
+
+  // Client-side Excel parsing
+  private static async parseExcelFile(file: File): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        try {
+          const data = e.target?.result;
+          const workbook = XLSX.read(data, { type: 'binary' });
+          
+          // Get the first worksheet
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          // Convert to JSON
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          
+          if (jsonData.length === 0) {
+            reject(new Error('Empty Excel file'));
+            return;
+          }
+          
+          // Convert to object format (same as CSV)
+          const headers = jsonData[0] as string[];
+          const data = [];
+          
+          for (let i = 1; i < jsonData.length; i++) {
+            const row = jsonData[i] as any[];
+            if (row && row.length === headers.length) {
+              const rowObj: any = {};
+              headers.forEach((header, index) => {
+                rowObj[header] = row[index];
+              });
+              data.push(rowObj);
+            }
+          }
+          
+          resolve(data);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('Failed to read Excel file'));
+      reader.readAsBinaryString(file);
     });
   }
 

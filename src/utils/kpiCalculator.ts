@@ -16,10 +16,11 @@ export interface CalculatedKPI {
 export class KPICalculator {
   /**
    * Calculate KPI values from raw data efficiently
+   * Returns only the 4 most important KPIs
    */
   static calculateKPIs(kpis: KPIData[], rawData: any[]): CalculatedKPI[] {
     if (!rawData || rawData.length === 0) {
-      return kpis.map(kpi => ({
+      return kpis.slice(0, 4).map(kpi => ({
         ...kpi,
         value: 'N/A',
         formattedValue: 'N/A',
@@ -27,13 +28,17 @@ export class KPICalculator {
       }));
     }
 
-    return kpis.map(kpi => {
+    // Calculate all KPIs first
+    const allCalculatedKPIs = kpis.map(kpi => {
       const calculated = this.calculateSingleKPI(kpi, rawData);
       return {
         ...kpi,
         ...calculated
       };
     });
+
+    // Return only top 4 most important KPIs
+    return this.getTopKPIs(allCalculatedKPIs, 4);
   }
 
   /**
@@ -77,12 +82,12 @@ export class KPICalculator {
       switch (kpi.type) {
         case 'sum':
           calculatedValue = values.reduce((a, b) => a + b, 0);
-          formattedValue = this.formatNumber(calculatedValue, 2);
+          formattedValue = this.formatNumber(calculatedValue);
           break;
           
         case 'average':
           calculatedValue = values.reduce((a, b) => a + b, 0) / values.length;
-          formattedValue = this.formatNumber(calculatedValue, 2);
+          formattedValue = this.formatNumber(calculatedValue);
           break;
           
         case 'count':
@@ -95,12 +100,12 @@ export class KPICalculator {
           
         case 'max':
           calculatedValue = Math.max(...values);
-          formattedValue = this.formatNumber(calculatedValue, 2);
+          formattedValue = this.formatNumber(calculatedValue);
           break;
           
         case 'min':
           calculatedValue = Math.min(...values);
-          formattedValue = this.formatNumber(calculatedValue, 2);
+          formattedValue = this.formatNumber(calculatedValue);
           break;
           
         default:
@@ -128,18 +133,11 @@ export class KPICalculator {
   }
 
   /**
-   * Format numbers with appropriate precision and locale
-   * All numeric values are limited to maximum 2 decimal places
+   * Format numbers with exactly 2 decimal places
+   * All numeric values are formatted to exactly 2 decimal places
    */
-  private static formatNumber(value: number, decimals: number = 0): string {
-    // Always limit to maximum 2 decimal places
-    const maxDecimals = Math.min(decimals, 2);
-    
-    if (maxDecimals > 0) {
-      return value.toFixed(maxDecimals);
-    }
-    
-    // Always use toFixed(2) for consistent 2 decimal places
+  private static formatNumber(value: number, decimals: number = 2): string {
+    // Always use exactly 2 decimal places for consistency
     return value.toFixed(2);
   }
 

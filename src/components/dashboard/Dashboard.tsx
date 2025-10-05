@@ -93,44 +93,79 @@ export function Dashboard({
   // Helper function to prepare chart data
   const prepareChartData = useMemo(() => {
     return (viz: any) => {
-      if (viz.data && viz.data.length > 0) {
-        // Process data based on chart type
-        if (viz.type === 'bar' && viz.yAxis === 'count') {
+      // Use viz.data if available, otherwise fallback to rawData
+      const sourceData = (viz.data && viz.data.length > 0) ? viz.data : rawData;
+      
+      if (!sourceData || sourceData.length === 0) {
+        console.warn('⚠️ No data available for chart:', viz.title);
+        return [];
+      }
+
+      console.log('📊 Preparing chart data for:', viz.title, 'Type:', viz.type);
+      console.log('📊 Source data length:', sourceData.length);
+      console.log('📊 Chart config:', { xAxis: viz.xAxis, yAxis: viz.yAxis, dataKey: viz.dataKey });
+
+      // Process data based on chart type
+      if (viz.type === 'bar') {
+        if (viz.yAxis === 'count') {
           // For bar charts with count, group by xAxis and count occurrences
-          const grouped = viz.data.reduce((acc: any, row: any) => {
+          const grouped = sourceData.reduce((acc: any, row: any) => {
             const key = row[viz.xAxis];
-            acc[key] = (acc[key] || 0) + 1;
+            if (key !== undefined && key !== null) {
+              acc[key] = (acc[key] || 0) + 1;
+            }
             return acc;
           }, {});
           
-          return Object.entries(grouped).map(([key, value]) => ({
+          const result = Object.entries(grouped).map(([key, value]) => ({
             [viz.xAxis]: key,
             count: value
           }));
-        } else if (viz.type === 'line' && viz.xAxis === 'index') {
+          console.log('📊 Bar chart (count) data:', result);
+          return result;
+        } else {
+          // For bar charts with values, use data as is
+          console.log('📊 Bar chart (value) data:', sourceData);
+          return sourceData;
+        }
+      } else if (viz.type === 'line') {
+        if (viz.xAxis === 'index') {
           // For line charts with index, add index to each row
-          return viz.data.map((row: any, index: number) => ({
+          const result = sourceData.map((row: any, index: number) => ({
             ...row,
             index: index + 1
           }));
-        } else if (viz.type === 'pie') {
-          // For pie charts, group by dataKey and count occurrences
-          const grouped = viz.data.reduce((acc: any, row: any) => {
-            const key = row[viz.dataKey];
-            acc[key] = (acc[key] || 0) + 1;
-            return acc;
-          }, {});
-          
-          return Object.entries(grouped).map(([key, value]) => ({
-            name: key,
-            value: value
-          }));
+          console.log('📊 Line chart (index) data:', result);
+          return result;
         } else {
-          // For other charts, use data as is
-          return viz.data;
+          // For line charts with date/category, use data as is
+          console.log('📊 Line chart (date) data:', sourceData);
+          return sourceData;
         }
+      } else if (viz.type === 'pie') {
+        // For pie charts, group by dataKey and count occurrences
+        const dataKey = viz.dataKey || viz.xAxis || Object.keys(sourceData[0] || {})[0];
+        console.log('📊 Pie chart dataKey:', dataKey);
+        
+        const grouped = sourceData.reduce((acc: any, row: any) => {
+          const key = row[dataKey];
+          if (key !== undefined && key !== null) {
+            acc[key] = (acc[key] || 0) + 1;
+          }
+          return acc;
+        }, {});
+        
+        const result = Object.entries(grouped).map(([key, value]) => ({
+          name: key,
+          value: value
+        }));
+        console.log('📊 Pie chart data:', result);
+        return result;
+      } else {
+        // For other charts, use data as is
+        console.log('📊 Other chart data:', sourceData);
+        return sourceData;
       }
-      return rawData;
     };
   }, [rawData]);
 
@@ -171,6 +206,18 @@ export function Dashboard({
 
       switch (viz.type) {
         case 'bar':
+          // Determine dataKey based on chart type
+          const barDataKey = viz.yAxis === 'count' ? 'count' : (viz.yAxis || 'value');
+          const barXAxisKey = viz.xAxis || 'name';
+          
+          console.log('📊 Bar chart rendering:', {
+            title: viz.title,
+            dataLength: chartData.length,
+            xAxisKey: barXAxisKey,
+            dataKey: barDataKey,
+            chartData: chartData
+          });
+          
           return (
             <Card key={viz.id} className="col-span-1 md:col-span-2 chart-container">
               <CardHeader>
@@ -181,16 +228,16 @@ export function Dashboard({
                 <ResponsiveContainer width="100%" height={300}>
                   <RechartsBarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey={viz.xAxis || 'name'} />
+                    <XAxis dataKey={barXAxisKey} />
                     <YAxis 
                       domain={[0, 'dataMax']}
                       tickFormatter={(value) => value.toLocaleString()}
                     />
                     <Tooltip 
-                      formatter={(value: any) => [value.toLocaleString(), viz.yAxis || 'Value']}
-                      labelFormatter={(label) => `${viz.xAxis}: ${label}`}
+                      formatter={(value: any) => [value.toLocaleString(), barDataKey]}
+                      labelFormatter={(label) => `${barXAxisKey}: ${label}`}
                     />
-                    <Bar dataKey={viz.yAxis || 'value'} fill="#8884d8" />
+                    <Bar dataKey={barDataKey} fill="#8884d8" />
                   </RechartsBarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -229,6 +276,14 @@ export function Dashboard({
             </Card>
           );
         case 'pie':
+          console.log('📊 Pie chart rendering:', {
+            title: viz.title,
+            dataLength: chartData.length,
+            chartData: chartData,
+            dataKey: 'value',
+            nameKey: 'name'
+          });
+          
           return (
             <Card key={viz.id} className="col-span-1 chart-container">
               <CardHeader>

@@ -82,7 +82,7 @@ export async function analyzeDataWithGranite(fileData, userPlan = 'free') {
  * @returns {string} Formatted prompt
  */
 function createAnalysisPrompt(headers, sampleData, userPlan) {
-    return `You are a data analyst AI specialized in creating business dashboards. Analyze the following data and provide structured recommendations.
+    return `You are an expert data analyst AI specialized in creating business dashboards. Analyze the following data and provide structured recommendations.
 
 DATA STRUCTURE:
 Headers: ${headers.join(', ')}
@@ -92,20 +92,30 @@ ${JSON.stringify(sampleData, null, 2)}
 TASK: Create a comprehensive data analysis for dashboard generation.
 
 VISUALIZATION SELECTION GUIDELINES:
-- BAR CHART: Use for comparing categories, discrete data, or showing rankings
-- LINE CHART: Use for trends over time, continuous data, or showing progression
-- PIE CHART: Use for showing parts of a whole, percentages, or categorical distribution
-- AREA CHART: Use for showing cumulative values over time or stacked data
-- SCATTER CHART: Use for showing correlations between two numerical variables
+- BAR CHART: Use for comparing categories, discrete data, or showing rankings. Set yAxis to 'count' for counting occurrences, or use actual values for comparisons.
+- LINE CHART: Use for trends over time, continuous data, or showing progression. Use xAxis as 'index' for sequential data or actual date/time columns.
+- PIE CHART: Use for showing parts of a whole, percentages, or categorical distribution. Always set dataKey to the categorical column.
+- AREA CHART: Use for showing cumulative values over time or stacked data.
+- SCATTER CHART: Use for showing correlations between two numerical variables.
+
+KPI SELECTION GUIDELINES:
+- Prioritize FINANCIAL KPIs (sum, average of monetary values)
+- Include STATISTICAL KPIs (count, max, min of key metrics)
+- Focus on CATEGORICAL KPIs only when relevant
+- Select ONLY the 4 MOST IMPORTANT KPIs for the dashboard
 
 REQUIREMENTS:
 1. Identify the data type (financial, customer, operational, sales, etc.)
-2. Suggest 3-6 relevant KPIs with descriptions (not all data needs many KPIs)
+2. Suggest EXACTLY 4 MOST IMPORTANT KPIs with clear descriptions
 3. Recommend ONLY 2-4 MOST APPROPRIATE visualizations based on data characteristics
 4. Generate a professional dashboard title and description
 5. Provide confidence score (0-1)
 
-IMPORTANT: Only recommend visualizations that make sense for the data. Don't force visualizations if the data doesn't support them.
+IMPORTANT: 
+- Only recommend visualizations that make sense for the data
+- For bar charts with categories, use yAxis: 'count' to count occurrences
+- For pie charts, always specify dataKey for the categorical column
+- Ensure all chart configurations are correct and will render properly
 
 OUTPUT FORMAT: Return a valid JSON object with this structure:
 {
