@@ -5,12 +5,12 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { data, filename } = req.body;
+    const { fileId, userPlan } = req.body;
 
-    if (!data || !Array.isArray(data) || data.length === 0) {
+    if (!fileId) {
       return res.status(400).json({ 
-        error: 'Invalid data provided',
-        message: 'Please provide valid CSV data array' 
+        error: 'File ID required',
+        message: 'Please provide a valid file ID for analysis' 
       });
     }
 
@@ -35,6 +35,30 @@ module.exports = async function handler(req, res) {
           type: 'average',
           column: 'Revenue',
           category: 'statistical'
+        },
+        {
+          id: 'kpi-3',
+          name: 'Total Quantity',
+          description: 'Sum of all Quantity values',
+          type: 'sum',
+          column: 'Quantity',
+          category: 'financial'
+        },
+        {
+          id: 'kpi-4',
+          name: 'Average Quantity',
+          description: 'Average value of Quantity',
+          type: 'average',
+          column: 'Quantity',
+          category: 'statistical'
+        },
+        {
+          id: 'kpi-5',
+          name: 'Count by Date',
+          description: 'Number of records per Date',
+          type: 'count',
+          column: 'Date',
+          category: 'categorical'
         }
       ],
       visualizations: [
@@ -53,6 +77,12 @@ module.exports = async function handler(req, res) {
           xAxis: 'index',
           yAxis: 'Revenue',
           recommended: true
+        },
+        {
+          id: 'viz-3',
+          title: 'Distribution by Product',
+          type: 'pie',
+          dataKey: 'Product'
         }
       ],
       insights: [
@@ -65,7 +95,7 @@ module.exports = async function handler(req, res) {
     res.status(200).json({
       success: true,
       analysis: mockAnalysis,
-      filename: filename || 'analysis',
+      fileId: fileId,
       timestamp: new Date().toISOString()
     });
 

@@ -8,12 +8,23 @@ module.exports = async function handler(req, res) {
     // For serverless deployment, we'll use a mock response
     // In production, you might want to integrate with Vercel Blob or AWS S3
     
+    const fileId = `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const filename = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.csv`;
+    
     const mockResponse = {
       success: true,
       message: 'File upload simulation successful',
-      filename: `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.csv`,
+      fileId: fileId,
+      filename: filename,
       size: 1024,
-      type: '.csv'
+      type: '.csv',
+      data: {
+        id: fileId,
+        filename: filename,
+        size: 1024,
+        type: '.csv',
+        uploadedAt: new Date().toISOString()
+      }
     };
 
     res.status(200).json(mockResponse);
