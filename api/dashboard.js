@@ -41,6 +41,9 @@ module.exports = async function handler(req, res) {
 
     res.status(200).json({
       success: true,
+      data: {
+        dashboard: dashboard
+      },
       dashboard: dashboard,
       message: 'Dashboard generated successfully'
     });

@@ -94,6 +94,11 @@ module.exports = async function handler(req, res) {
 
     res.status(200).json({
       success: true,
+      data: {
+        analysis: mockAnalysis,
+        fileId: fileId,
+        timestamp: new Date().toISOString()
+      },
       analysis: mockAnalysis,
       fileId: fileId,
       timestamp: new Date().toISOString()
