@@ -32,7 +32,7 @@ export const useDashboard = (): UseDashboardReturn => {
       const response = await ApiService.uploadFile(file, userPlan);
 
       console.log('✅ Upload successful:', response);
-      const newFileId = response.data!.fileId;
+      const newFileId = response.fileId || response.data?.fileId;
       setFileId(newFileId);
 
       // Auto-analyze after upload
@@ -60,7 +60,7 @@ export const useDashboard = (): UseDashboardReturn => {
       setKpis(analysisData.kpis);
 
       // Calculate KPI values efficiently
-      const calculated = KPICalculator.calculateKPIs(analysisData.kpis, response.data!.preview || []);
+      const calculated = KPICalculator.calculateKPIs(analysisData.kpis, response.data?.preview || []);
       setCalculatedKPIs(calculated);
 
       // Set visualizations
@@ -78,7 +78,7 @@ export const useDashboard = (): UseDashboardReturn => {
         insights: analysisData.insights,
         kpis: analysisData.kpis,
         visualizations: analysisData.visualizations,
-        rawData: response.data!.preview || []
+        rawData: response.data?.preview || []
       };
       
       setDashboard(dashboardData);
@@ -120,7 +120,7 @@ export const useDashboard = (): UseDashboardReturn => {
 
       console.log('✅ Analysis successful:', response);
 
-      const analysisData = response.data!.analysis;
+      const analysisData = response.analysis || response.data?.analysis;
 
       // Set analysis data
       setAnalysis({
