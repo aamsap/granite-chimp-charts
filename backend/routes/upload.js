@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { validateFile, parseFileData } from '../services/fileService.js';
 import { validateRequest } from '../middleware/validation.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,79 +46,64 @@ const upload = multer({
 });
 
 // Upload and validate file
-router.post('/', upload.single('file'), async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({
-                error: 'No file uploaded',
-                message: 'Please upload a CSV or Excel file'
-            });
-        }
-
-        const filePath = req.file.path;
-        const fileName = req.file.originalname;
-
-        // Validate file format and structure
-        const validationResult = await validateFile(filePath);
-
-        if (!validationResult.isValid) {
-            return res.status(400).json({
-                error: 'Invalid file format',
-                message: validationResult.message,
-                details: validationResult.details
-            });
-        }
-
-        // Parse file data
-        const fileData = await parseFileData(filePath);
-
-        res.json({
-            success: true,
-            message: 'File uploaded and validated successfully',
-            data: {
-                fileName,
-                filePath,
-                headers: fileData.headers,
-                rowCount: fileData.rows.length,
-                columnCount: fileData.headers.length,
-                preview: fileData.rows.slice(0, 5), // First 5 rows for preview
-                fileId: req.file.filename
-            }
-        });
-
-    } catch (error) {
-        console.error('Upload error:', error);
-        res.status(500).json({
-            error: 'File processing failed',
-            message: error.message
+router.post('/', upload.single('file'), asyncHandler(async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({
+            success: false,
+            error: 'No file uploaded',
+            message: 'Please upload a CSV or Excel file'
         });
     }
-});
+
+    const filePath = req.file.path;
+    const fileName = req.file.originalname;
+
+    // Validate file format and structure
+    const validationResult = await validateFile(filePath);
+
+    if (!validationResult.isValid) {
+        return res.status(400).json({
+            success: false,
+            error: 'Invalid file format',
+            message: validationResult.message,
+            details: validationResult.details
+        });
+    }
+
+    // Parse file data
+    const fileData = await parseFileData(filePath);
+
+    res.json({
+        success: true,
+        message: 'File uploaded and validated successfully',
+        data: {
+            fileName,
+            filePath,
+            headers: fileData.headers,
+            rowCount: fileData.rows.length,
+            columnCount: fileData.headers.length,
+            preview: fileData.rows.slice(0, 5), // First 5 rows for preview
+            fileId: req.file.filename
+        }
+    });
+}));
 
 // Get file preview
-router.get('/preview/:fileId', async (req, res) => {
-    try {
-        const { fileId } = req.params;
-        const filePath = path.join(__dirname, '../uploads', fileId);
+router.get('/preview/:fileId', asyncHandler(async (req, res) => {
+    const { fileId } = req.params;
+    const filePath = path.join(__dirname, '../uploads', fileId);
 
-        const fileData = await parseFileData(filePath);
+    const fileData = await parseFileData(filePath);
 
-        res.json({
-            success: true,
-            data: {
-                headers: fileData.headers,
-                preview: fileData.rows.slice(0, 10), // First 10 rows
-                totalRows: fileData.rows.length
-            }
-        });
-
-    } catch (error) {
-        console.error('Preview error:', error);
-        res.status(500).json({
-            error: 'Failed to preview file',
-            message: error.message
-        });
-    }
-});
+    res.json({
+        success: true,
+        message: 'File preview retrieved successfully',
+        data: {
+            headers: fileData.headers,
+            preview: fileData.rows.slice(0, 10), // First 10 rows
+            totalRows: fileData.rows.length
+        }
+    });
+}));
 
 export default router;

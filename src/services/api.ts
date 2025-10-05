@@ -1,245 +1,195 @@
-// API service for Chimp Chart backend integration
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-
-interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data?: T;
-    error?: string;
-    details?: any;
-}
-
-interface UploadResponse {
-    fileName: string;
-    filePath: string;
-    headers: string[];
-    rowCount: number;
-    columnCount: number;
-    preview: any[];
-    fileId: string;
-}
-
-interface AnalysisResponse {
-    fileId: string;
-    analysis: {
-        dataType: string;
-        insights: Array<{
-            type: string;
-            title: string;
-            description: string;
-            confidence: number;
-        }>;
-        confidence: number;
-        processingTime: number;
-    };
-    timestamp: string;
-}
-
-interface KPIsResponse {
-    fileId: string;
-    kpis: Array<{
-        id: string;
-        name: string;
-        description: string;
-        type: string;
-        column: string;
-        category: string;
-    }>;
-    timestamp: string;
-}
-
-interface VisualizationsResponse {
-    fileId: string;
-    visualizations: Array<{
-        id: string;
-        type: string;
-        title: string;
-        description: string;
-        xAxis: string;
-        yAxis: string;
-        data: any[];
-        recommended: boolean;
-    }>;
-    timestamp: string;
-}
-
-interface DashboardResponse {
-    dashboard: {
-        id: string;
-        title: string;
-        description: string;
-        theme: string;
-        userPlan: string;
-        metadata: any;
-        layout: any;
-        kpis: any[];
-        visualizations: any[];
-        configuration: any;
-    };
-    fileId: string;
-    timestamp: string;
-}
-
-interface PDFResponse {
-    pdfUrl: string;
-    filename: string;
-    size: number;
-    timestamp: string;
-}
+// Consolidated API service for the entire application
+import config from '@/config';
+import { 
+  ApiResponse, 
+  UploadResponse, 
+  AnalysisResponse, 
+  DashboardData, 
+  PDFResponse, 
+  UserPlan,
+  KPIData,
+  VisualizationData 
+} from '@/types';
+import { ErrorHandler } from '@/utils/errorHandler';
 
 class ApiService {
-    private async request<T>(
-        endpoint: string,
-        options: RequestInit = {},
-        userPlan: string = 'free'
-    ): Promise<ApiResponse<T>> {
-        const url = `${API_BASE_URL}${endpoint}`;
+  private static async request<T>(
+    endpoint: string,
+    options: RequestInit = {},
+    userPlan: UserPlan = 'free'
+  ): Promise<ApiResponse<T>> {
+    const url = `${config.apiUrl}${endpoint}`;
 
-        const defaultHeaders = {
-            'Content-Type': 'application/json',
-            'X-User-Plan': userPlan,
-        };
+    const defaultHeaders = {
+      'Content-Type': 'application/json',
+      'X-User-Plan': userPlan,
+    };
 
-        const config: RequestInit = {
-            ...options,
-            headers: {
-                ...defaultHeaders,
-                ...options.headers,
-            },
-        };
+    const requestConfig: RequestInit = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+    };
 
-        try {
-            const response = await fetch(url, config);
-            const data = await response.json();
+    try {
+      const response = await fetch(url, requestConfig);
+      const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(data.message || `HTTP error! status: ${response.status}`);
-            }
+      if (!response.ok) {
+        throw ErrorHandler.createApiError(
+          response.status,
+          data.message || `HTTP error! status: ${response.status}`,
+          data
+        );
+      }
 
-            return data;
-        } catch (error) {
-            console.error('API request failed:', error);
-            throw error;
-        }
+      return data;
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
+  }
+
+  // File Upload
+  static async uploadFile(file: File, userPlan: UserPlan = 'free'): Promise<ApiResponse<UploadResponse>> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const url = `${config.apiUrl}/upload`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-User-Plan': userPlan,
+          // Don't set Content-Type for FormData - let browser set it with boundary
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw ErrorHandler.createApiError(
+          response.status,
+          data.message || `HTTP error! status: ${response.status}`,
+          data
+        );
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Upload request failed:', error);
+      throw error;
+    }
+  }
+
+  static async getFilePreview(fileId: string, userPlan: UserPlan = 'free'): Promise<ApiResponse<any>> {
+    return this.request(`/upload/preview/${fileId}`, {
+      method: 'GET',
+    }, userPlan);
+  }
+
+  // Data Analysis
+  static async analyzeData(fileId: string, userPlan: UserPlan = 'free'): Promise<ApiResponse<AnalysisResponse>> {
+    return this.request<AnalysisResponse>('/analysis/analyze', {
+      method: 'POST',
+      body: JSON.stringify({ fileId, userPlan }),
+    }, userPlan);
+  }
+
+  static async getKPISuggestions(fileId: string, userPlan: UserPlan = 'free'): Promise<ApiResponse<{ kpis: KPIData[] }>> {
+    return this.request<{ kpis: KPIData[] }>('/analysis/kpis', {
+      method: 'POST',
+      body: JSON.stringify({ fileId, userPlan }),
+    }, userPlan);
+  }
+
+  static async getVisualizationRecommendations(
+    fileId: string,
+    kpis: KPIData[],
+    userPlan: UserPlan = 'free'
+  ): Promise<ApiResponse<{ visualizations: VisualizationData[] }>> {
+    return this.request<{ visualizations: VisualizationData[] }>('/analysis/visualizations', {
+      method: 'POST',
+      body: JSON.stringify({ fileId, kpis, userPlan }),
+    }, userPlan);
+  }
+
+  // Dashboard Generation
+  static async generateDashboard(
+    fileId: string,
+    analysis: any,
+    kpis: KPIData[] = [],
+    visualizations: VisualizationData[] = [],
+    userPlan: UserPlan = 'free',
+    customTitle?: string,
+    customDescription?: string,
+    theme: string = 'default'
+  ): Promise<ApiResponse<{ dashboard: DashboardData }>> {
+    return this.request<{ dashboard: DashboardData }>('/dashboard/generate', {
+      method: 'POST',
+      body: JSON.stringify({
+        fileId,
+        analysis,
+        kpis,
+        visualizations,
+        userPlan,
+        customTitle,
+        customDescription,
+        theme,
+      }),
+    }, userPlan);
+  }
+
+  static async getDashboardTemplate(templateId: string, userPlan: UserPlan = 'free'): Promise<ApiResponse<any>> {
+    return this.request(`/dashboard/template/${templateId}?userPlan=${userPlan}`, {
+      method: 'GET',
+    }, userPlan);
+  }
+
+  static async saveDashboard(dashboardId: string, configuration: any, userPlan: UserPlan = 'free'): Promise<ApiResponse<any>> {
+    return this.request('/dashboard/save', {
+      method: 'POST',
+      body: JSON.stringify({ dashboardId, configuration, userPlan }),
+    }, userPlan);
+  }
+
+  // PDF Export
+  static async generatePDF(dashboard: any, options: any = {}, userPlan: UserPlan = 'free'): Promise<ApiResponse<PDFResponse>> {
+    return this.request<PDFResponse>('/pdf/generate', {
+      method: 'POST',
+      body: JSON.stringify({ dashboard, options }),
+    }, userPlan);
+  }
+
+  static async downloadPDF(filename: string): Promise<Blob> {
+    const response = await fetch(`${config.apiUrl}/pdf/download/${filename}`);
+
+    if (!response.ok) {
+      throw ErrorHandler.createApiError(
+        response.status,
+        `Failed to download PDF: ${response.statusText}`
+      );
     }
 
-    // File Upload
-    async uploadFile(file: File, userPlan: string = 'free'): Promise<ApiResponse<UploadResponse>> {
-        const formData = new FormData();
-        formData.append('file', file);
+    return response.blob();
+  }
 
-        return this.request<UploadResponse>('/upload', {
-            method: 'POST',
-            headers: {
-                'X-User-Plan': userPlan,
-            },
-            body: formData,
-        }, userPlan);
-    }
+  static async getPDFTemplates(userPlan: UserPlan = 'free'): Promise<ApiResponse<any>> {
+    return this.request(`/pdf/templates?userPlan=${userPlan}`, {
+      method: 'GET',
+    }, userPlan);
+  }
 
-    async getFilePreview(fileId: string, userPlan: string = 'free'): Promise<ApiResponse<any>> {
-        return this.request(`/upload/preview/${fileId}`, {
-            method: 'GET',
-        }, userPlan);
-    }
-
-    // Data Analysis
-    async analyzeData(fileId: string, userPlan: string = 'free'): Promise<ApiResponse<AnalysisResponse>> {
-        return this.request<AnalysisResponse>('/analysis/analyze', {
-            method: 'POST',
-            body: JSON.stringify({ fileId, userPlan }),
-        }, userPlan);
-    }
-
-    async getKPISuggestions(fileId: string, userPlan: string = 'free'): Promise<ApiResponse<KPIsResponse>> {
-        return this.request<KPIsResponse>('/analysis/kpis', {
-            method: 'POST',
-            body: JSON.stringify({ fileId, userPlan }),
-        }, userPlan);
-    }
-
-    async getVisualizationRecommendations(
-        fileId: string,
-        kpis: any[],
-        userPlan: string = 'free'
-    ): Promise<ApiResponse<VisualizationsResponse>> {
-        return this.request<VisualizationsResponse>('/analysis/visualizations', {
-            method: 'POST',
-            body: JSON.stringify({ fileId, kpis, userPlan }),
-        }, userPlan);
-    }
-
-    // Dashboard Generation
-    async generateDashboard(
-        fileId: string,
-        analysis: any,
-        kpis: any[] = [],
-        visualizations: any[] = [],
-        userPlan: string = 'free',
-        customTitle?: string,
-        customDescription?: string,
-        theme: string = 'default'
-    ): Promise<ApiResponse<DashboardResponse>> {
-        return this.request<DashboardResponse>('/dashboard/generate', {
-            method: 'POST',
-            body: JSON.stringify({
-                fileId,
-                analysis,
-                kpis,
-                visualizations,
-                userPlan,
-                customTitle,
-                customDescription,
-                theme,
-            }),
-        }, userPlan);
-    }
-
-    async getDashboardTemplate(templateId: string, userPlan: string = 'free'): Promise<ApiResponse<any>> {
-        return this.request(`/dashboard/template/${templateId}?userPlan=${userPlan}`, {
-            method: 'GET',
-        }, userPlan);
-    }
-
-    async saveDashboard(dashboardId: string, configuration: any, userPlan: string = 'free'): Promise<ApiResponse<any>> {
-        return this.request('/dashboard/save', {
-            method: 'POST',
-            body: JSON.stringify({ dashboardId, configuration, userPlan }),
-        }, userPlan);
-    }
-
-    // PDF Export
-    async generatePDF(dashboard: any, options: any = {}, userPlan: string = 'free'): Promise<ApiResponse<PDFResponse>> {
-        return this.request<PDFResponse>('/pdf/generate', {
-            method: 'POST',
-            body: JSON.stringify({ dashboard, options }),
-        }, userPlan);
-    }
-
-    async downloadPDF(filename: string): Promise<Blob> {
-        const response = await fetch(`${API_BASE_URL}/pdf/download/${filename}`);
-
-        if (!response.ok) {
-            throw new Error(`Failed to download PDF: ${response.statusText}`);
-        }
-
-        return response.blob();
-    }
-
-    async getPDFTemplates(userPlan: string = 'free'): Promise<ApiResponse<any>> {
-        return this.request(`/pdf/templates?userPlan=${userPlan}`, {
-            method: 'GET',
-        }, userPlan);
-    }
-
-    // Health Check
-    async healthCheck(): Promise<ApiResponse<any>> {
-        return this.request('/health', {
-            method: 'GET',
-        });
-    }
+  // Health Check
+  static async healthCheck(): Promise<ApiResponse<any>> {
+    return this.request('/health', {
+      method: 'GET',
+    });
+  }
 }
 
-export const apiService = new ApiService();
-export default apiService;
+export default ApiService;

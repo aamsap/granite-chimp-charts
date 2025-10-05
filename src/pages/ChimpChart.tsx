@@ -1,19 +1,23 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, FileSpreadsheet, AlertCircle, BarChart3, Download, Sparkles } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { useDashboard } from "@/hooks/useDashboard";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Upload, FileSpreadsheet, AlertCircle, BarChart3, Download, Sparkles } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { KPIGrid, KPISummary } from '@/components/dashboard/KPICard';
+import { useDashboard } from '@/hooks/useDashboard';
+import { UserPlan } from '@/types';
+import config from '@/config';
 
 const ChimpChart = () => {
   const [isDragging, setIsDragging] = useState(false);
-  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
+  const [userPlan, setUserPlan] = useState<UserPlan>('free');
 
   const {
     fileId,
     analysis,
     kpis,
+    calculatedKPIs,
     visualizations,
     dashboard,
     isLoading,
@@ -42,6 +46,22 @@ const ChimpChart = () => {
 
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile) {
+      // Validate file type
+      const allowedTypes = ['.csv', '.xls', '.xlsx'];
+      const fileExtension = '.' + droppedFile.name.split('.').pop()?.toLowerCase();
+      
+      if (!allowedTypes.includes(fileExtension)) {
+        alert('Please upload a CSV or Excel file (.csv, .xls, .xlsx)');
+        return;
+      }
+      
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (droppedFile.size > maxSize) {
+        alert('File size must be less than 10MB');
+        return;
+      }
+      
       uploadFile(droppedFile, userPlan);
     }
   };
@@ -49,6 +69,22 @@ const ChimpChart = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
+      // Validate file type
+      const allowedTypes = ['.csv', '.xls', '.xlsx'];
+      const fileExtension = '.' + selectedFile.name.split('.').pop()?.toLowerCase();
+      
+      if (!allowedTypes.includes(fileExtension)) {
+        alert('Please upload a CSV or Excel file (.csv, .xls, .xlsx)');
+        return;
+      }
+      
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (selectedFile.size > maxSize) {
+        alert('File size must be less than 10MB');
+        return;
+      }
+      
       uploadFile(selectedFile, userPlan);
     }
   };
@@ -59,7 +95,6 @@ const ChimpChart = () => {
     }
 
     try {
-      // Analysis is already done in uploadFile, but we can trigger it again if needed
       await analyzeData(userPlan);
     } catch (error) {
       console.error('Analysis failed:', error);
@@ -73,7 +108,7 @@ const ChimpChart = () => {
     if (pdfUrl) {
       // Create download link
       const link = document.createElement('a');
-      link.href = `http://localhost:3001${pdfUrl}`;
+      link.href = pdfUrl;
       link.download = `${dashboard.title || 'dashboard'}.pdf`;
       document.body.appendChild(link);
       link.click();
@@ -206,31 +241,12 @@ const ChimpChart = () => {
                           </div>
                         </div>
 
-                        {analysis.insights && analysis.insights.length > 0 && (
-                          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <h4 className="font-semibold mb-3 text-blue-800">🧠 AI Insights</h4>
-                            <div className="space-y-2">
-                              {analysis.insights.slice(0, 3).map((insight, index) => (
-                                <div key={index} className="text-sm">
-                                  <span className="font-medium">{insight.title}:</span>
-                                  <p className="text-muted-foreground">{insight.description}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                        {/* Remove raw AI insights display - only show clean processed data */}
 
-                        {kpis && kpis.length > 0 && (
-                          <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                            <h4 className="font-semibold mb-3 text-purple-800">📊 Key Metrics</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                              {kpis.slice(0, 4).map((kpi, index) => (
-                                <div key={index} className="flex justify-between">
-                                  <span className="font-medium">{kpi.name}:</span>
-                                  <span className="text-muted-foreground">{kpi.type}</span>
-                                </div>
-                              ))}
-                            </div>
+                        {calculatedKPIs && calculatedKPIs.length > 0 && (
+                          <div className="space-y-4">
+                            <KPISummary kpis={calculatedKPIs} />
+                            <KPIGrid kpis={calculatedKPIs} maxItems={4} />
                           </div>
                         )}
                       </div>

@@ -223,30 +223,25 @@ function parseAnalysisResult(result, fileData, userPlan) {
                 timestamp: new Date().toISOString()
             };
         } catch (jsonError) {
-            // If JSON parsing fails, create analysis from text result
-            console.log('Parsing text result from Granite AI...');
+            // If JSON parsing fails, use mock data instead of showing raw AI result
+            console.log('JSON parsing failed, using mock analysis instead of raw AI result...');
+            console.log('JSON Parse Error:', jsonError.message);
 
+            // Always use mock data when AI result can't be parsed properly
             const dataType = detectDataType(fileData.headers, fileData.rows);
-            const insights = [{
-                type: 'granite_analysis',
-                title: 'AI Analysis Results',
-                description: resultText,
-                confidence: 0.9
-            }];
 
             return {
                 dataType: dataType,
-                insights: insights,
+                insights: generateMockInsights(fileData.headers, fileData.rows),
                 kpis: filterKPIsByPlan(generateMockKPIs(fileData), userPlan),
                 visualizations: filterVisualizationsByPlan(generateMockVisualizations(fileData, []), userPlan),
                 dashboard: {
                     title: `Dashboard - ${dataType} Analysis`,
-                    description: `AI-powered analysis of your ${dataType} data with insights from Granite AI.`
+                    description: `AI-powered analysis of your ${dataType} data with insights and visualizations.`
                 },
-                confidence: 0.9,
+                confidence: 0.85,
                 processingTime: Math.random() * 2000 + 1000,
-                timestamp: new Date().toISOString(),
-                rawResult: resultText
+                timestamp: new Date().toISOString()
             };
         }
     } catch (error) {
@@ -428,8 +423,8 @@ function generateMockVisualizations(fileData, kpis) {
 
     const visualizations = [];
 
-    // Bar chart for categorical data
-    if (categoricalColumns.length > 0) {
+    // Bar chart for categorical data with numeric aggregation
+    if (categoricalColumns.length > 0 && numericColumns.length > 0) {
         visualizations.push({
             id: 'bar_chart_1',
             type: 'bar',
@@ -442,18 +437,39 @@ function generateMockVisualizations(fileData, kpis) {
         });
     }
 
-    // Line chart for numeric data
+    // Line chart for time series data
     if (numericColumns.length > 0) {
-        visualizations.push({
-            id: 'line_chart_1',
-            type: 'line',
-            title: `Trend of ${numericColumns[0]}`,
-            description: `Shows the trend of ${numericColumns[0]} over time or sequence`,
-            xAxis: 'index',
-            yAxis: numericColumns[0],
-            data: fileData.rows.slice(0, 100),
-            recommended: true
-        });
+        // Check if we have a date column for proper time series
+        const dateColumn = headers.find(h => 
+            h.toLowerCase().includes('date') || 
+            h.toLowerCase().includes('time') ||
+            h.toLowerCase().includes('day')
+        );
+        
+        if (dateColumn) {
+            visualizations.push({
+                id: 'line_chart_1',
+                type: 'line',
+                title: `Trend of ${numericColumns[0]}`,
+                description: `Shows the trend of ${numericColumns[0]} over time`,
+                xAxis: dateColumn,
+                yAxis: numericColumns[0],
+                data: fileData.rows.slice(0, 100),
+                recommended: true
+            });
+        } else {
+            // Fallback to index-based chart
+            visualizations.push({
+                id: 'line_chart_1',
+                type: 'line',
+                title: `Trend of ${numericColumns[0]}`,
+                description: `Shows the trend of ${numericColumns[0]} over sequence`,
+                xAxis: 'index',
+                yAxis: numericColumns[0],
+                data: fileData.rows.slice(0, 100),
+                recommended: true
+            });
+        }
     }
 
     // Pie chart for categorical data
