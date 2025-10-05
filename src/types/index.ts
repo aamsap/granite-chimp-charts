@@ -84,13 +84,8 @@ export interface DashboardData {
   rawData: any[];
 }
 
-// PDF Types
-export interface PDFResponse {
-  pdfUrl: string;
-  filename: string;
-  size: number;
-  timestamp: string;
-}
+// PDF Types - REMOVED
+// Use browser print functionality instead
 
 // User Plan Types
 export type UserPlan = 'free' | 'pro';
@@ -162,7 +157,7 @@ export interface UseDashboardReturn {
   generateKPIs: (userPlan?: UserPlan) => Promise<void>;
   generateVisualizations: (userPlan?: UserPlan) => Promise<void>;
   generateDashboard: (options: { userPlan: UserPlan }) => Promise<void>;
-  generatePDF: (userPlan?: UserPlan) => Promise<string | null>;
+  generatePDF: (userPlan?: UserPlan) => Promise<string | null>; // DEPRECATED - use print instead
   resetDashboard: () => void;
 }
 

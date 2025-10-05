@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, FileSpreadsheet, AlertCircle, BarChart3, Download, Sparkles } from 'lucide-react';
+import { Upload, FileSpreadsheet, AlertCircle, BarChart3, Download, Sparkles, Printer } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { KPIGrid, KPISummary } from '@/components/dashboard/KPICard';
+import { AnalysisResults } from '@/components/dashboard/AnalysisResults';
 import { useDashboard } from '@/hooks/useDashboard';
 import { UserPlan } from '@/types';
 import config from '@/config';
@@ -101,19 +101,8 @@ const ChimpChart = () => {
     }
   };
 
-  const handleDownloadPDF = async () => {
-    if (!dashboard) return;
-
-    const pdfUrl = await generatePDF(userPlan);
-    if (pdfUrl) {
-      // Create download link
-      const link = document.createElement('a');
-      link.href = pdfUrl;
-      link.download = `${dashboard.title || 'dashboard'}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
@@ -241,14 +230,25 @@ const ChimpChart = () => {
                           </div>
                         </div>
 
+                        {/* AI Analysis Results */}
+                        <AnalysisResults 
+                          analysis={{
+                            dataType: analysis.dataType,
+                            insights: analysis.insights || [],
+                            kpis: analysis.kpis || [],
+                            visualizations: analysis.visualizations || [],
+                            dashboard: { 
+                              title: analysis.dashboard.title, 
+                              description: analysis.dashboard.description 
+                            },
+                            confidence: analysis.confidence,
+                            processingTime: analysis.processingTime,
+                            timestamp: analysis.timestamp
+                          }}
+                        />
+
                         {/* Remove raw AI insights display - only show clean processed data */}
 
-                        {calculatedKPIs && calculatedKPIs.length > 0 && (
-                          <div className="space-y-4">
-                            <KPISummary kpis={calculatedKPIs} />
-                            <KPIGrid kpis={calculatedKPIs} maxItems={4} />
-                          </div>
-                        )}
                       </div>
                     )}
 
@@ -261,12 +261,12 @@ const ChimpChart = () => {
                           </p>
                           <div className="flex gap-2">
                             <Button
-                              onClick={handleDownloadPDF}
+                              onClick={handlePrint}
                               variant="outline"
                               size="sm"
                             >
-                              <Download className="mr-2 h-4 w-4" />
-                              Download PDF
+                              <Printer className="mr-2 h-4 w-4" />
+                              Print Dashboard
                             </Button>
                             <Button
                               onClick={() => window.open(`/dashboard/${dashboard.id}`, '_blank')}

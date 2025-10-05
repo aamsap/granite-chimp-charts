@@ -119,7 +119,7 @@ const HowToUse = () => {
                     <div>
                       <CardTitle className="text-2xl mb-2">Step 6: Export & Share</CardTitle>
                       <CardDescription className="text-base">
-                        Download your dashboard as a high-quality PDF or share it online with your team. 
+                        Print your dashboard or share it online with your team. 
                         Perfect for reports, presentations, or keeping stakeholders informed.
                       </CardDescription>
                     </div>

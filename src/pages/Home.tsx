@@ -107,7 +107,7 @@ const Home = () => {
                 </div>
                 <CardTitle>Export & Share</CardTitle>
                 <CardDescription>
-                  Download your dashboard as a PDF or share online
+                  Print your dashboard or share online
                 </CardDescription>
               </CardHeader>
             </Card>

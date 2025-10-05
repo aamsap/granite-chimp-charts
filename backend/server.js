@@ -11,7 +11,6 @@ import { fileURLToPath } from 'url';
 import uploadRoutes from './routes/upload.js';
 import analysisRoutes from './routes/analysis.js';
 import dashboardRoutes from './routes/dashboard.js';
-import pdfRoutes from './routes/pdf.js';
 import tempStorageRoutes from './routes/tempStorage.js';
 
 // Import middleware
@@ -54,7 +53,6 @@ app.use(cors({
 // Body parsing middleware - only for JSON routes
 app.use('/api/analysis', express.json({ limit: '10mb' }));
 app.use('/api/dashboard', express.json({ limit: '10mb' }));
-app.use('/api/pdf', express.json({ limit: '10mb' }));
 app.use('/api/temp', express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -65,7 +63,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/upload', uploadRoutes);
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/pdf', pdfRoutes);
 app.use('/api/temp', tempStorageRoutes);
 
 // Health check endpoint

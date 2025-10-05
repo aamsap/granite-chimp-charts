@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Dashboard } from '@/components/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Share2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Download, Share2, AlertCircle, Printer } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -81,55 +81,8 @@ const DashboardView = () => {
     );
   }
 
-  const handleDownloadPDF = async () => {
-    try {
-      // Prepare dashboard data for PDF generation
-      const pdfDashboardData = {
-        id: dashboardData.title.toLowerCase().replace(/\s+/g, '-'),
-        title: dashboardData.title,
-        description: dashboardData.description,
-        dataType: dashboardData.dataType,
-        confidence: dashboardData.confidence,
-        processingTime: dashboardData.processingTime,
-        timestamp: new Date().toISOString(),
-        kpis: dashboardData.kpis,
-        visualizations: dashboardData.visualizations.filter(viz => viz.recommended),
-        metadata: {
-          generatedAt: new Date().toISOString(),
-          dataSource: {
-            rowCount: dashboardData.rawData.length,
-            columnCount: dashboardData.rawData[0] ? Object.keys(dashboardData.rawData[0]).length : 0
-          },
-          analysis: {
-            insights: dashboardData.insights
-          }
-        }
-      };
-
-      const response = await fetch(`${config.apiUrl}/pdf/generate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ dashboard: pdfDashboardData })
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        // Create download link
-        const link = document.createElement('a');
-        link.href = `${config.apiUrl.replace('/api', '')}${result.data.pdfUrl}`;
-        link.download = `${dashboardData.title || 'dashboard'}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        console.error('PDF generation failed:', result.message);
-      }
-    } catch (error) {
-      console.error('PDF download error:', error);
-    }
+  const handlePrint = () => {
+    window.print();
   };
 
   const handleShare = () => {
@@ -157,9 +110,9 @@ const DashboardView = () => {
                 <Share2 className="mr-2 h-4 w-4" />
                 Share
               </Button>
-              <Button size="sm" onClick={handleDownloadPDF}>
-                <Download className="mr-2 h-4 w-4" />
-                Download PDF
+              <Button size="sm" onClick={handlePrint}>
+                <Printer className="mr-2 h-4 w-4" />
+                Print Dashboard
               </Button>
             </div>
           </div>

@@ -157,32 +157,8 @@ class ApiService {
     }, userPlan);
   }
 
-  // PDF Export
-  static async generatePDF(dashboard: any, options: any = {}, userPlan: UserPlan = 'free'): Promise<ApiResponse<PDFResponse>> {
-    return this.request<PDFResponse>('/pdf/generate', {
-      method: 'POST',
-      body: JSON.stringify({ dashboard, options }),
-    }, userPlan);
-  }
-
-  static async downloadPDF(filename: string): Promise<Blob> {
-    const response = await fetch(`${config.apiUrl}/pdf/download/${filename}`);
-
-    if (!response.ok) {
-      throw ErrorHandler.createApiError(
-        response.status,
-        `Failed to download PDF: ${response.statusText}`
-      );
-    }
-
-    return response.blob();
-  }
-
-  static async getPDFTemplates(userPlan: UserPlan = 'free'): Promise<ApiResponse<any>> {
-    return this.request(`/pdf/templates?userPlan=${userPlan}`, {
-      method: 'GET',
-    }, userPlan);
-  }
+  // PDF Export - REMOVED
+  // Use browser print functionality instead
 
   // Health Check
   static async healthCheck(): Promise<ApiResponse<any>> {

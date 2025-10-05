@@ -95,3 +95,137 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Utility classes */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Enhanced KPI Card Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.kpi-card {
+  animation: float 3s ease-in-out infinite;
+}
+
+.kpi-card:hover {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+/* Gradient text animation */
+.gradient-text {
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4, #10b981);
+  background-size: 300% 300%;
+  animation: shimmer 3s ease-in-out infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Print Styles */
+@media print {
+  /* Hide navigation and non-essential elements */
+  .navbar,
+  .footer,
+  .print-hidden {
+    display: none !important;
+  }
+
+  /* Ensure proper page breaks */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .page-break-inside-avoid {
+    page-break-inside: avoid;
+  }
+
+  /* Dashboard print styles */
+  .dashboard-print {
+    margin: 0;
+    padding: 20px;
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Chart containers for print */
+  .chart-container {
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+  }
+
+  /* KPI cards for print */
+  .kpi-card {
+    page-break-inside: avoid;
+    border: 1px solid #ccc !important;
+    background: white !important;
+    margin-bottom: 10px;
+  }
+
+  /* Ensure charts are visible in print */
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Print-friendly colors */
+  * {
+    color: black !important;
+    background: white !important;
+  }
+
+  /* Keep some styling for readability */
+  .text-primary {
+    color: #333 !important;
+  }
+
+  .border {
+    border-color: #ccc !important;
+  }
+}

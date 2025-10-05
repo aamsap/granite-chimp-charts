@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { KPICard } from './KPICard';
-import { AnalysisResults } from './AnalysisResults';
 import { 
   BarChart as RechartsBarChart, 
   Bar, 
@@ -154,7 +153,7 @@ export function Dashboard({
       switch (viz.type) {
         case 'bar':
           return (
-            <Card key={viz.id} className="col-span-1 md:col-span-2">
+            <Card key={viz.id} className="col-span-1 md:col-span-2 chart-container">
               <CardHeader>
                 <CardTitle className="text-lg">{viz.title}</CardTitle>
                 <p className="text-sm text-muted-foreground">{viz.description}</p>
@@ -185,7 +184,7 @@ export function Dashboard({
           const padding = (maxValue - minValue) * 0.1; // 10% padding
           
           return (
-            <Card key={viz.id} className="col-span-1 md:col-span-2">
+            <Card key={viz.id} className="col-span-1 md:col-span-2 chart-container">
               <CardHeader>
                 <CardTitle className="text-lg">{viz.title}</CardTitle>
                 <p className="text-sm text-muted-foreground">{viz.description}</p>
@@ -212,7 +211,7 @@ export function Dashboard({
           );
         case 'pie':
           return (
-            <Card key={viz.id} className="col-span-1">
+            <Card key={viz.id} className="col-span-1 chart-container">
               <CardHeader>
                 <CardTitle className="text-lg">{viz.title}</CardTitle>
                 <p className="text-sm text-muted-foreground">{viz.description}</p>
@@ -244,7 +243,7 @@ export function Dashboard({
           );
         case 'area':
           return (
-            <Card key={viz.id} className="col-span-1 md:col-span-2">
+            <Card key={viz.id} className="col-span-1 md:col-span-2 chart-container">
               <CardHeader>
                 <CardTitle className="text-lg">{viz.title}</CardTitle>
                 <p className="text-sm text-muted-foreground">{viz.description}</p>
@@ -270,7 +269,7 @@ export function Dashboard({
           );
         case 'scatter':
           return (
-            <Card key={viz.id} className="col-span-1 md:col-span-2">
+            <Card key={viz.id} className="col-span-1 md:col-span-2 chart-container">
               <CardHeader>
                 <CardTitle className="text-lg">{viz.title}</CardTitle>
                 <p className="text-sm text-muted-foreground">{viz.description}</p>
@@ -302,7 +301,7 @@ export function Dashboard({
   }, [rawData, prepareChartData]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 dashboard-print">
       {/* Dashboard Header */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold">{title}</h1>
@@ -322,19 +321,6 @@ export function Dashboard({
         </div>
       </div>
 
-      {/* AI Analysis Results */}
-      <AnalysisResults 
-        analysis={{
-          dataType,
-          insights: insights || [],
-          kpis: kpis || [],
-          visualizations: visualizations || [],
-          dashboard: { title, description },
-          confidence,
-          processingTime,
-          timestamp: new Date().toISOString()
-        }}
-      />
 
       {/* KPI Cards */}
       {kpiValues && kpiValues.length > 0 && (

@@ -219,53 +219,10 @@ export const useDashboard = (): UseDashboardReturn => {
   }, [analysis, fileId, dashboard?.rawData]);
 
   const generatePDF = useCallback(async (userPlan: UserPlan = 'free') => {
-    if (!dashboard || !analysis || !kpis || !visualizations) {
-      setError('Dashboard data incomplete for PDF generation');
-      return null;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Prepare dashboard data for PDF generation
-      const pdfDashboardData = {
-        id: dashboard.id,
-        title: dashboard.title,
-        description: dashboard.description,
-        dataType: analysis.dataType,
-        confidence: analysis.confidence,
-        processingTime: analysis.processingTime,
-        timestamp: analysis.timestamp,
-        kpis: kpis,
-        visualizations: visualizations.filter(viz => viz.recommended),
-        metadata: {
-          generatedAt: new Date().toISOString(),
-          dataSource: {
-            rowCount: dashboard.rawData?.length || 0,
-            columnCount: dashboard.rawData?.[0] ? Object.keys(dashboard.rawData[0]).length : 0
-          },
-          analysis: {
-            insights: analysis.insights
-          }
-        }
-      };
-
-      const response = await ApiService.generatePDF(pdfDashboardData, {}, userPlan);
-
-      if (response.data) {
-        return response.data.pdfUrl;
-      } else {
-        throw new Error(response.message || 'PDF generation failed');
-      }
-    } catch (err) {
-      console.error('PDF generation failed:', err);
-      setError(ErrorHandler.getErrorMessage(err));
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [dashboard, analysis, kpis, visualizations]);
+    // PDF functionality removed - use print instead
+    console.warn('PDF functionality has been removed. Use browser print instead.');
+    return null;
+  }, []);
 
   const resetDashboard = useCallback(() => {
     setFileId(null);

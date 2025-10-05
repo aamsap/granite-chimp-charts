@@ -77,7 +77,7 @@ export class KPICalculator {
       switch (kpi.type) {
         case 'sum':
           calculatedValue = values.reduce((a, b) => a + b, 0);
-          formattedValue = this.formatNumber(calculatedValue);
+          formattedValue = this.formatNumber(calculatedValue, 2);
           break;
           
         case 'average':
@@ -87,17 +87,20 @@ export class KPICalculator {
           
         case 'count':
           calculatedValue = values.length;
-          formattedValue = calculatedValue.toLocaleString();
+          formattedValue = calculatedValue.toLocaleString(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+          });
           break;
           
         case 'max':
           calculatedValue = Math.max(...values);
-          formattedValue = this.formatNumber(calculatedValue);
+          formattedValue = this.formatNumber(calculatedValue, 2);
           break;
           
         case 'min':
           calculatedValue = Math.min(...values);
-          formattedValue = this.formatNumber(calculatedValue);
+          formattedValue = this.formatNumber(calculatedValue, 2);
           break;
           
         default:
@@ -126,18 +129,26 @@ export class KPICalculator {
 
   /**
    * Format numbers with appropriate precision and locale
+   * All numeric values are limited to maximum 2 decimal places
    */
   private static formatNumber(value: number, decimals: number = 0): string {
-    if (decimals > 0) {
-      return value.toFixed(decimals);
+    // Always limit to maximum 2 decimal places
+    const maxDecimals = Math.min(decimals, 2);
+    
+    if (maxDecimals > 0) {
+      return value.toFixed(maxDecimals);
     }
     
-    // For large numbers, use locale formatting
+    // For large numbers, use locale formatting with 2 decimal max
     if (Math.abs(value) >= 1000) {
-      return value.toLocaleString();
+      return value.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      });
     }
     
-    return value.toString();
+    // For smaller numbers, limit to 2 decimal places
+    return value.toFixed(2);
   }
 
   /**

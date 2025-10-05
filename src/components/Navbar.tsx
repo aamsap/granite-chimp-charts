@@ -8,7 +8,7 @@ const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed top-0 w-full bg-card/80 backdrop-blur-lg border-b border-border z-50">
+    <nav className="fixed top-0 w-full bg-card/80 backdrop-blur-lg border-b border-border z-50 navbar">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-bold text-xl">
           <img src={logo} alt="Chimp Chart" className="h-10 w-10" />
