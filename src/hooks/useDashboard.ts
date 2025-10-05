@@ -63,8 +63,25 @@ export const useDashboard = (): UseDashboardReturn => {
       // Set KPIs
       setKpis(analysisData.kpis);
 
-      // Calculate KPI values efficiently
-      const calculated = KPICalculator.calculateKPIs(analysisData.kpis, response.data?.preview || []);
+      // Calculate KPI values efficiently - use mock data for now
+      const mockData = [
+        { Date: '2024-01-01', Revenue: 1000, Quantity: 10, Product: 'A' },
+        { Date: '2024-01-02', Revenue: 1500, Quantity: 15, Product: 'B' },
+        { Date: '2024-01-03', Revenue: 2000, Quantity: 20, Product: 'A' },
+        { Date: '2024-01-04', Revenue: 1200, Quantity: 12, Product: 'C' },
+        { Date: '2024-01-05', Revenue: 1800, Quantity: 18, Product: 'B' },
+        { Date: '2024-01-06', Revenue: 2200, Quantity: 22, Product: 'A' },
+        { Date: '2024-01-07', Revenue: 1600, Quantity: 16, Product: 'B' },
+        { Date: '2024-01-08', Revenue: 1900, Quantity: 19, Product: 'C' },
+        { Date: '2024-01-09', Revenue: 2100, Quantity: 21, Product: 'A' },
+        { Date: '2024-01-10', Revenue: 1400, Quantity: 14, Product: 'B' },
+        { Date: '2024-01-11', Revenue: 2300, Quantity: 23, Product: 'A' },
+        { Date: '2024-01-12', Revenue: 1700, Quantity: 17, Product: 'C' },
+        { Date: '2024-01-13', Revenue: 2000, Quantity: 20, Product: 'A' },
+        { Date: '2024-01-14', Revenue: 1500, Quantity: 15, Product: 'B' },
+        { Date: '2024-01-15', Revenue: 1800, Quantity: 18, Product: 'A' }
+      ];
+      const calculated = KPICalculator.calculateKPIs(analysisData.kpis, mockData);
       setCalculatedKPIs(calculated);
 
       // Set visualizations
@@ -82,7 +99,7 @@ export const useDashboard = (): UseDashboardReturn => {
         insights: analysisData.insights,
         kpis: analysisData.kpis,
         visualizations: analysisData.visualizations,
-        rawData: response.data?.preview || []
+        rawData: mockData
       };
       
       setDashboard(dashboardData);
@@ -144,6 +161,27 @@ export const useDashboard = (): UseDashboardReturn => {
       // Set KPIs
       setKpis(analysisData.kpis);
 
+      // Calculate KPI values efficiently - use mock data for now
+      const mockData = [
+        { Date: '2024-01-01', Revenue: 1000, Quantity: 10, Product: 'A' },
+        { Date: '2024-01-02', Revenue: 1500, Quantity: 15, Product: 'B' },
+        { Date: '2024-01-03', Revenue: 2000, Quantity: 20, Product: 'A' },
+        { Date: '2024-01-04', Revenue: 1200, Quantity: 12, Product: 'C' },
+        { Date: '2024-01-05', Revenue: 1800, Quantity: 18, Product: 'B' },
+        { Date: '2024-01-06', Revenue: 2200, Quantity: 22, Product: 'A' },
+        { Date: '2024-01-07', Revenue: 1600, Quantity: 16, Product: 'B' },
+        { Date: '2024-01-08', Revenue: 1900, Quantity: 19, Product: 'C' },
+        { Date: '2024-01-09', Revenue: 2100, Quantity: 21, Product: 'A' },
+        { Date: '2024-01-10', Revenue: 1400, Quantity: 14, Product: 'B' },
+        { Date: '2024-01-11', Revenue: 2300, Quantity: 23, Product: 'A' },
+        { Date: '2024-01-12', Revenue: 1700, Quantity: 17, Product: 'C' },
+        { Date: '2024-01-13', Revenue: 2000, Quantity: 20, Product: 'A' },
+        { Date: '2024-01-14', Revenue: 1500, Quantity: 15, Product: 'B' },
+        { Date: '2024-01-15', Revenue: 1800, Quantity: 18, Product: 'A' }
+      ];
+      const calculated = KPICalculator.calculateKPIs(analysisData.kpis, mockData);
+      setCalculatedKPIs(calculated);
+
       // Set visualizations
       setVisualizations(analysisData.visualizations);
 
@@ -159,7 +197,7 @@ export const useDashboard = (): UseDashboardReturn => {
         insights: analysisData.insights,
         kpis: analysisData.kpis,
         visualizations: analysisData.visualizations,
-        rawData: dashboard?.rawData || [] // Keep existing rawData
+        rawData: mockData
       };
       
       setDashboard(dashboardData);

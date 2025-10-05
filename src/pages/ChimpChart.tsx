@@ -221,29 +221,26 @@ const ChimpChart = () => {
                             </div>
                             <div>
                               <span className="font-medium">Confidence:</span>
-                              <p className="text-muted-foreground">{(analysis.confidence * 100).toFixed(1)}%</p>
+                              <p className="text-muted-foreground">
+                                {typeof analysis.confidence === 'number' 
+                                  ? (analysis.confidence * 100).toFixed(1) 
+                                  : analysis.confidence
+                                }%
+                              </p>
                             </div>
                             <div>
                               <span className="font-medium">Processing Time:</span>
-                              <p className="text-muted-foreground">{(analysis.processingTime / 1000).toFixed(1)}s</p>
+                              <p className="text-muted-foreground">
+                                {typeof analysis.processingTime === 'number' 
+                                  ? (analysis.processingTime / 1000).toFixed(1) + 's'
+                                  : analysis.processingTime
+                                }
+                              </p>
                             </div>
                           </div>
                         </div>
 
                         {/* AI Analysis Results */}
-                        {console.log('Analysis data being passed to AnalysisResults:', analysis)}
-                        {console.log('Analysis dashboard:', analysis.dashboard)}
-                        {console.log('Analysis insights:', analysis.insights)}
-                        {console.log('Analysis kpis:', analysis.kpis)}
-                        {console.log('Analysis visualizations:', analysis.visualizations)}
-                        
-                        <div className="border border-red-200 p-4 rounded-lg">
-                          <h4 className="font-semibold text-red-800 mb-2">Debug Info:</h4>
-                          <pre className="text-xs text-red-600 overflow-auto max-h-32">
-                            {JSON.stringify(analysis, null, 2)}
-                          </pre>
-                        </div>
-
                         <AnalysisResults 
                           analysis={{
                             dataType: analysis.dataType,
