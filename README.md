@@ -241,7 +241,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Documentation**: Check the [SETUP.md](SETUP.md) for detailed setup instructions
 - **Issues**: Report bugs via GitHub Issues
-- **Email**: hello@chimpchart.com
+- **Email**:aam@excellentchimp.com
 - **Discord**: [Join our community](https://discord.gg/chimpchart)
 
 ## 🙏 Acknowledgments
@@ -253,6 +253,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ by the Chimp Chart Team**
+**Made with ❤️ by Aamverse**
 
 *Transform your data into insights. No coding required.*
