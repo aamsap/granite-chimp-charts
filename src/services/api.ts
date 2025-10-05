@@ -171,8 +171,8 @@ class ApiService {
       
       reader.onload = (e) => {
         try {
-          const data = e.target?.result;
-          const workbook = XLSX.read(data, { type: 'binary' });
+          const fileData = e.target?.result;
+          const workbook = XLSX.read(fileData, { type: 'binary' });
           
           // Get the first worksheet
           const firstSheetName = workbook.SheetNames[0];
@@ -188,7 +188,7 @@ class ApiService {
           
           // Convert to object format (same as CSV)
           const headers = jsonData[0] as string[];
-          const data = [];
+          const excelData = [];
           
           for (let i = 1; i < jsonData.length; i++) {
             const row = jsonData[i] as any[];
@@ -197,11 +197,11 @@ class ApiService {
               headers.forEach((header, index) => {
                 rowObj[header] = row[index];
               });
-              data.push(rowObj);
+              excelData.push(rowObj);
             }
           }
           
-          resolve(data);
+          resolve(excelData);
         } catch (error) {
           reject(error);
         }
