@@ -51,7 +51,10 @@ export const useDashboard = (): UseDashboardReturn => {
         insights: analysisData.insights,
         kpis: analysisData.kpis,
         visualizations: analysisData.visualizations,
-        dashboard: analysisData.dashboard,
+        dashboard: analysisData.dashboard || {
+          title: 'Dashboard - Data Analysis',
+          description: 'AI-powered analysis of your data'
+        },
         confidence: analysisData.confidence,
         processingTime: analysisData.processingTime,
         timestamp: analysisData.timestamp
@@ -70,8 +73,8 @@ export const useDashboard = (): UseDashboardReturn => {
       // Set dashboard
       const dashboardData: DashboardData = {
         id: newFileId,
-        title: analysisData.dashboard.title,
-        description: analysisData.dashboard.description,
+        title: analysisData.dashboard?.title || 'Dashboard - Data Analysis',
+        description: analysisData.dashboard?.description || 'AI-powered analysis of your data',
         dataType: analysisData.dataType,
         confidence: analysisData.confidence,
         processingTime: analysisData.processingTime,
@@ -129,7 +132,10 @@ export const useDashboard = (): UseDashboardReturn => {
         insights: analysisData.insights,
         kpis: analysisData.kpis,
         visualizations: analysisData.visualizations,
-        dashboard: analysisData.dashboard,
+        dashboard: analysisData.dashboard || {
+          title: 'Dashboard - Data Analysis',
+          description: 'AI-powered analysis of your data'
+        },
         confidence: analysisData.confidence,
         processingTime: analysisData.processingTime,
         timestamp: analysisData.timestamp
@@ -144,8 +150,8 @@ export const useDashboard = (): UseDashboardReturn => {
       // Set dashboard
       const dashboardData: DashboardData = {
         id: fileId,
-        title: analysisData.dashboard.title,
-        description: analysisData.dashboard.description,
+        title: analysisData.dashboard?.title || 'Dashboard - Data Analysis',
+        description: analysisData.dashboard?.description || 'AI-powered analysis of your data',
         dataType: analysisData.dataType,
         confidence: analysisData.confidence,
         processingTime: analysisData.processingTime,

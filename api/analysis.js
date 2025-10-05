@@ -89,7 +89,11 @@ module.exports = async function handler(req, res) {
         'Revenue shows consistent growth over time',
         'Peak performance observed in Q4',
         'Recommend focusing on high-performing categories'
-      ]
+      ],
+      dashboard: {
+        title: 'Dashboard - Financial Analysis',
+        description: 'AI-powered analysis of your financial data with insights from Granite AI.'
+      }
     };
 
     res.status(200).json({
