@@ -1,21 +1,89 @@
-MIT License
+Educational Use Only License (EUOL) 1.0
+Copyright (c) 2025 EXCELLENT CHIMP | ILHAM SAPUTRA
 
-Copyright (c) 2024 Chimp Chart Team
+Permission is hereby granted, free of charge, to any person or entity ("Licensee")
+obtaining a copy of this software and associated documentation files (the
+"Software"), to use, copy, study, modify, and distribute the Software, solely for
+non-commercial, educational purposes, subject to the following conditions:
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. Permitted Uses
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+   - The Licensee may use, reproduce, modify, and distribute the Software for
+     teaching, classroom instruction, research (non-commercial), academic
+     demonstrations, learning, and other educational activities, provided no
+     monetary compensation is received directly or indirectly in exchange for
+     access to the Software or derivative works.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. Prohibited Uses (No Monetization)
+
+   - Any use of the Software for commercial purposes or monetization is strictly
+     prohibited. This includes, but is not limited to:
+     a) Selling or licensing the Software or derivative works for a fee.
+     b) Offering access to the Software or derivative works behind a paywall,
+     subscription, or other paid access mechanism.
+     c) Running the Software as part of a hosted, paid service (SaaS) or
+     otherwise providing the Software as a commercial service.
+     d) Embedding or bundling the Software in any product or offering that is
+     sold or provided for a fee.
+     e) Displaying advertising, affiliate links, sponsorship, or any
+     advertising-driven monetization associated with the Software.
+     f) Accepting donations, commissions, or payments where such payments are
+     explicitly or implicitly in exchange for access, specialized support,
+     or capabilities of the Software. (Voluntary, unconditional donations
+     that are not tied to access, usage, or special features are not
+     permitted if they are part of a monetization strategy.)
+     g) Using the Software in commercial research, consulting, or any other
+     project that generates revenue or is funded with the intent to
+     commercialize results.
+
+3. Attribution and License Preservation
+
+   - Redistributions of the Software, in source or binary form, must retain the
+     above copyright notice, this License, and a clear statement that use is
+     limited to educational, non-commercial purposes.
+
+4. No Sublicensing
+
+   - Licensee may not sublicense the rights granted herein. The rights are
+     non-transferable except as part of a permanent, free-of-charge transfer of
+     the entire work that preserves this License and attribution.
+
+5. Disclaimer of Warranty
+
+   - THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+     FITNESS FOR A PARTICULAR PURPOSE, OR NONINFRINGEMENT. IN NO EVENT SHALL THE
+     COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+     IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF, OR IN
+     CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+6. Limitation of Liability
+
+   - IN NO EVENT WILL THE COPYRIGHT HOLDER BE LIABLE FOR ANY INDIRECT, INCIDENTAL,
+     SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+     PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+     OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+     WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+     OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+     ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+7. Termination
+
+   - This License and the rights granted terminate automatically if the Licensee
+     breaches any term of this License, including any attempt to monetize the
+     Software in violation of Section 2. Upon termination, Licensee must cease
+     all use and distribution of the Software and destroy all copies in their
+     possession.
+
+8. Governing Law
+
+   - This License is governed by the laws of the jurisdiction chosen by the
+     copyright holder. If no jurisdiction is specified, the License shall be
+     interpreted according to the laws of the copyright holder's primary place
+     of business or residence.
+
+9. Interpretation
+   - If any part of this License is held to be unenforceable, the remaining
+     provisions remain in effect to the fullest extent permitted by law.
+
+END OF LICENSE
