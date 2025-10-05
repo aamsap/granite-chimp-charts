@@ -57,7 +57,7 @@ class ApiService {
     const formData = new FormData();
     formData.append('file', file);
 
-    const url = `${config.apiUrl}/api/upload`;
+    const url = `${config.apiUrl}/upload`;
 
     try {
       const response = await fetch(url, {
@@ -94,7 +94,7 @@ class ApiService {
 
   // Data Analysis
   static async analyzeData(fileId: string, userPlan: UserPlan = 'free'): Promise<ApiResponse<AnalysisResponse>> {
-    return this.request<AnalysisResponse>('/api/analysis', {
+    return this.request<AnalysisResponse>('/analysis/analyze', {
       method: 'POST',
       body: JSON.stringify({ fileId, userPlan }),
     }, userPlan);
@@ -129,7 +129,7 @@ class ApiService {
     customDescription?: string,
     theme: string = 'default'
   ): Promise<ApiResponse<{ dashboard: DashboardData }>> {
-    return this.request<{ dashboard: DashboardData }>('/api/dashboard', {
+    return this.request<{ dashboard: DashboardData }>('/dashboard/generate', {
       method: 'POST',
       body: JSON.stringify({
         fileId,
@@ -162,7 +162,7 @@ class ApiService {
 
   // Health Check
   static async healthCheck(): Promise<ApiResponse<any>> {
-    return this.request('/api/health', {
+    return this.request('/health', {
       method: 'GET',
     });
   }
