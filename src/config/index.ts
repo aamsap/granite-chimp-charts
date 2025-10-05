@@ -17,7 +17,7 @@ export interface AppConfig {
 }
 
 const config: AppConfig = {
-  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+  apiUrl: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001/api'),
   maxFileSize: 10 * 1024 * 1024, // 10MB
   allowedFileTypes: ['.csv', '.xls', '.xlsx'],
   freePlanLimits: {
