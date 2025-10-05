@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { KPICard } from './KPICard';
+import { KPICalculator } from '@/utils/kpiCalculator';
 import { 
   BarChart as RechartsBarChart, 
   Bar, 
@@ -50,45 +51,21 @@ export function Dashboard({
     }
   };
 
-  // Helper function to calculate KPI values from raw data
-  const calculateKPIValue = useMemo(() => {
-    return (kpi: any, data: any[]) => {
-      if (!data.length) return 0;
-
-      const column = kpi.column;
-      const type = kpi.type;
-
-      switch (type) {
-        case 'sum':
-          return data.reduce((sum, row) => {
-            const value = parseFloat(row[column]) || 0;
-            return sum + value;
-          }, 0);
-        case 'average':
-          const sum = data.reduce((sum, row) => {
-            const value = parseFloat(row[column]) || 0;
-            return sum + value;
-          }, 0);
-          return sum / data.length;
-        case 'count':
-          return data.length;
-        case 'max':
-          return Math.max(...data.map(row => parseFloat(row[column]) || 0));
-        case 'min':
-          return Math.min(...data.map(row => parseFloat(row[column]) || 0));
-        default:
-          return 0;
-      }
-    };
-  }, [rawData]);
-
-  // Memoize KPI values to prevent infinite re-rendering
+  // Calculate KPI values using KPICalculator (limited to 4 most important)
   const kpiValues = useMemo(() => {
-    return kpis.map(kpi => ({
+    if (!kpis || kpis.length === 0 || !rawData || rawData.length === 0) {
+      return [];
+    }
+    
+    // Use KPICalculator to get only 4 most important KPIs with proper formatting
+    const calculatedKPIs = KPICalculator.calculateKPIs(kpis, rawData);
+    console.log('📊 Dashboard KPI Values:', calculatedKPIs);
+    
+    return calculatedKPIs.map(kpi => ({
       ...kpi,
-      calculatedValue: calculateKPIValue(kpi, rawData)
+      calculatedValue: kpi.formattedValue // Use formatted value with 2 decimals
     }));
-  }, [kpis, rawData, calculateKPIValue]);
+  }, [kpis, rawData]);
 
   // Helper function to prepare chart data
   const prepareChartData = useMemo(() => {
