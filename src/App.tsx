@@ -7,7 +7,9 @@ import Home from "./pages/Home";
 import HowToUse from "./pages/HowToUse";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
-import ChimpChart from "./pages/ChimpChart";
+import ChimpChart from "./pages/ChimpChartRobust";
+import DashboardView from "./pages/DashboardView";
+import VisualizationDemo from "./pages/VisualizationDemo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,7 +25,9 @@ const App = () => (
           <Route path="/how-to-use" element={<HowToUse />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/about" element={<About />} />
-          <Route path="/app" element={<ChimpChart />} />
+          <Route path="/chimp-chart" element={<ChimpChart />} />
+          <Route path="/dashboard/:id" element={<DashboardView />} />
+          <Route path="/demo" element={<VisualizationDemo />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

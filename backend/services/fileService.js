@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import { createReadStream } from 'fs';
 import csv from 'csv-parser';
 import XLSX from 'xlsx';
 import path from 'path';
@@ -120,7 +121,7 @@ async function parseCSV(filePath) {
         const headers = [];
         let isFirstRow = true;
 
-        fs.createReadStream(filePath)
+        createReadStream(filePath)
             .pipe(csv())
             .on('data', (data) => {
                 if (isFirstRow) {

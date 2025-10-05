@@ -12,6 +12,7 @@ import uploadRoutes from './routes/upload.js';
 import analysisRoutes from './routes/analysis.js';
 import dashboardRoutes from './routes/dashboard.js';
 import pdfRoutes from './routes/pdf.js';
+import tempStorageRoutes from './routes/tempStorage.js';
 
 // Load environment variables
 dotenv.config();
@@ -51,6 +52,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/pdf', pdfRoutes);
+app.use('/api/temp', tempStorageRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

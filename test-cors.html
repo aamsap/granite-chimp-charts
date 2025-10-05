@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CORS Test</title>
+</head>
+
+<body>
+    <h1>CORS Test</h1>
+    <button onclick="testCORS()">Test CORS</button>
+    <button onclick="testUpload()">Test Upload</button>
+    <div id="result"></div>
+
+    <script>
+        async function testCORS() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing CORS...';
+
+            try {
+                const response = await fetch('http://localhost:3001/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                resultDiv.innerHTML = `<pre>✅ CORS Test Success: ${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<pre>❌ CORS Test Failed: ${error.message}</pre>`;
+            }
+        }
+
+        async function testUpload() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing Upload...';
+
+            try {
+                // Create a simple CSV file
+                const csvContent = 'Date,Product,Revenue\n2024-01-01,Product A,1500\n2024-01-02,Product B,800';
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const file = new File([blob], 'test.csv', { type: 'text/csv' });
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('http://localhost:3001/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                resultDiv.innerHTML = `<pre>✅ Upload Test Success: ${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<pre>❌ Upload Test Failed: ${error.message}</pre>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -43,7 +43,7 @@
 
 ### Backend
 - **Node.js** with Express.js
-- **Granite AI** integration
+- **Granite AI** via Replicate API
 - **Puppeteer** for PDF generation
 - **Multer** for file uploads
 - **Joi** for validation
@@ -128,8 +128,9 @@ VITE_APP_VERSION=1.0.0
 PORT=3001
 NODE_ENV=development
 FRONTEND_URL=http://localhost:8080
-GRANITE_API_URL=https://api.granite.com
-GRANITE_API_KEY=your_api_key_here
+REPLICATE_API_TOKEN=your_replicate_token_here
+GRANITE_MODEL=ibm/granite-3.2-8b-instruct
+REPLICATE_API_URL=https://api.replicate.com/v1
 ```
 
 ## 📚 API Documentation

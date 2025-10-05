@@ -9,7 +9,7 @@ const Pricing = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <div className="pt-24 pb-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -59,7 +59,7 @@ const Pricing = () => {
                     <span>1 dashboard page</span>
                   </li>
                 </ul>
-                <Link to="/app">
+                <Link to="/chimp-chart">
                   <Button className="w-full" variant="outline">
                     Get Started Free
                   </Button>
@@ -113,7 +113,7 @@ const Pricing = () => {
                     <span className="font-semibold">Priority support</span>
                   </li>
                 </ul>
-                <Link to="/app">
+                <Link to="/chimp-chart">
                   <Button className="w-full bg-gradient-primary hover:shadow-glow transition-all duration-300">
                     Upgrade to Pro
                   </Button>
@@ -128,7 +128,7 @@ const Pricing = () => {
               <div>
                 <h3 className="font-semibold text-lg mb-2">Can I upgrade or downgrade at any time?</h3>
                 <p className="text-muted-foreground">
-                  Yes! You can upgrade to Pro at any time. If you downgrade, you'll retain Pro features until 
+                  Yes! You can upgrade to Pro at any time. If you downgrade, you'll retain Pro features until
                   the end of your billing period.
                 </p>
               </div>
@@ -141,14 +141,14 @@ const Pricing = () => {
               <div>
                 <h3 className="font-semibold text-lg mb-2">Is my data secure?</h3>
                 <p className="text-muted-foreground">
-                  Absolutely. We use industry-standard encryption and never share your data with third parties. 
+                  Absolutely. We use industry-standard encryption and never share your data with third parties.
                   Your uploaded files are processed securely and can be deleted at any time.
                 </p>
               </div>
               <div>
                 <h3 className="font-semibold text-lg mb-2">Do you offer refunds?</h3>
                 <p className="text-muted-foreground">
-                  We offer a 30-day money-back guarantee. If you're not satisfied with Chimp Chart Pro, 
+                  We offer a 30-day money-back guarantee. If you're not satisfied with Chimp Chart Pro,
                   contact us within 30 days for a full refund.
                 </p>
               </div>

@@ -1,0 +1,11 @@
+Date,Product,Revenue,Quantity,Customer_Type,Region
+2024-01-01,Widget A,1500,10,Premium,North
+2024-01-02,Widget B,800,5,Standard,South
+2024-01-03,Widget A,1200,8,Premium,East
+2024-01-04,Widget C,1800,15,Standard,West
+2024-01-05,Widget B,900,6,Premium,North
+2024-01-06,Widget A,1100,7,Standard,South
+2024-01-07,Widget C,2000,20,Premium,East
+2024-01-08,Widget B,750,4,Standard,West
+2024-01-09,Widget A,1300,9,Premium,North
+2024-01-10,Widget C,1600,12,Standard,South

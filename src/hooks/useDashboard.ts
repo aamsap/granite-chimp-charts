@@ -1,277 +1,276 @@
 import { useState, useCallback } from 'react';
-import { apiService } from '../services/api';
-import { useToast } from './use-toast';
+import ApiService, { UploadResponse, AnalysisResponse } from '@/lib/api';
 
-interface DashboardState {
-    fileId: string | null;
-    analysis: any | null;
-    kpis: any[];
-    visualizations: any[];
-    dashboard: any | null;
-    isLoading: boolean;
-    error: string | null;
+export interface DashboardData {
+    id?: string;
+    title: string;
+    description: string;
+    dataType?: string;
+    confidence?: number;
+    processingTime?: number;
+    timestamp?: string;
 }
 
-interface UseDashboardReturn extends DashboardState {
-    uploadFile: (file: File, userPlan?: string) => Promise<void>;
-    analyzeData: (userPlan?: string) => Promise<void>;
-    generateKPIs: (userPlan?: string) => Promise<void>;
-    generateVisualizations: (userPlan?: string) => Promise<void>;
-    generateDashboard: (options?: {
-        customTitle?: string;
-        customDescription?: string;
-        theme?: string;
-        userPlan?: string;
-    }) => Promise<void>;
-    generatePDF: (options?: any, userPlan?: string) => Promise<string | null>;
-    resetDashboard: () => void;
-    setKPIs: (kpis: any[]) => void;
-    setVisualizations: (visualizations: any[]) => void;
+export interface KPIData {
+    id: string;
+    name: string;
+    description: string;
+    type: string;
+    column: string;
+    category: string;
 }
 
-export function useDashboard(): UseDashboardReturn {
-    const [state, setState] = useState<DashboardState>({
-        fileId: null,
-        analysis: null,
-        kpis: [],
-        visualizations: [],
-        dashboard: null,
-        isLoading: false,
-        error: null,
-    });
+export interface VisualizationData {
+    id: string;
+    type: string;
+    title: string;
+    description: string;
+    xAxis?: string;
+    yAxis?: string;
+    dataKey?: string;
+    data: any[];
+    recommended: boolean;
+}
 
-    const { toast } = useToast();
+export interface InsightData {
+    type: string;
+    title: string;
+    description: string;
+    confidence: number;
+}
 
-    const setLoading = useCallback((isLoading: boolean) => {
-        setState(prev => ({ ...prev, isLoading, error: null }));
-    }, []);
-
-    const setError = useCallback((error: string) => {
-        setState(prev => ({ ...prev, error, isLoading: false }));
-        toast({
-            title: "Error",
-            description: error,
-            variant: "destructive",
-        });
-    }, [toast]);
+export const useDashboard = () => {
+    const [fileId, setFileId] = useState<string | null>(null);
+    const [analysis, setAnalysis] = useState<{
+        dataType: string;
+        insights: InsightData[];
+        confidence: number;
+        processingTime: number;
+        timestamp: string;
+    } | null>(null);
+    const [kpis, setKpis] = useState<KPIData[]>([]);
+    const [visualizations, setVisualizations] = useState<VisualizationData[]>([]);
+    const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const uploadFile = useCallback(async (file: File, userPlan: string = 'free') => {
-        setLoading(true);
+        setIsLoading(true);
+        setError(null);
+
         try {
-            const response = await apiService.uploadFile(file, userPlan);
+            console.log('📤 Uploading file:', file.name);
+            const response: UploadResponse = await ApiService.uploadFile(file);
 
-            if (response.success && response.data) {
-                setState(prev => ({
-                    ...prev,
-                    fileId: response.data!.fileId,
-                    isLoading: false,
-                }));
+            console.log('✅ Upload successful:', response);
+            const newFileId = response.data.fileId;
+            setFileId(newFileId);
 
-                toast({
-                    title: "File uploaded successfully",
-                    description: `${response.data!.fileName} is ready for analysis.`,
-                });
-            } else {
-                setError(response.message || 'Failed to upload file');
-            }
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Failed to upload file');
+            // Auto-analyze after upload with the new fileId
+            setIsLoading(true);
+            console.log('🔍 Analyzing data with Granite AI...');
+            const analysisResponse: AnalysisResponse = await ApiService.analyzeData(newFileId, userPlan);
+
+            console.log('✅ Analysis successful:', analysisResponse);
+
+            const analysisData = analysisResponse.data.analysis;
+
+            // Set analysis data
+            setAnalysis({
+                dataType: analysisData.dataType,
+                insights: analysisData.insights,
+                confidence: analysisData.confidence,
+                processingTime: analysisData.processingTime,
+                timestamp: analysisData.timestamp
+            });
+
+            // Set KPIs
+            setKpis(analysisData.kpis);
+
+            // Set visualizations
+            setVisualizations(analysisData.visualizations);
+
+            // Set dashboard
+            setDashboard({
+                id: newFileId,
+                title: analysisData.dashboard.title,
+                description: analysisData.dashboard.description,
+                dataType: analysisData.dataType,
+                confidence: analysisData.confidence,
+                processingTime: analysisData.processingTime,
+                timestamp: analysisData.timestamp
+            });
+
+        } catch (err) {
+            console.error('❌ Upload/Analysis failed:', err);
+            setError(err instanceof Error ? err.message : 'Upload failed');
+        } finally {
+            setIsLoading(false);
         }
-    }, [setLoading, setError, toast]);
+    }, []);
 
     const analyzeData = useCallback(async (userPlan: string = 'free') => {
-        if (!state.fileId) {
-            setError('No file uploaded. Please upload a file first.');
+        if (!fileId) {
+            setError('No file uploaded');
             return;
         }
 
-        setLoading(true);
+        setIsLoading(true);
+        setError(null);
+
         try {
-            const response = await apiService.analyzeData(state.fileId, userPlan);
+            console.log('🔍 Analyzing data with Granite AI...');
+            const response: AnalysisResponse = await ApiService.analyzeData(fileId, userPlan);
 
-            if (response.success && response.data) {
-                setState(prev => ({
-                    ...prev,
-                    analysis: response.data!.analysis,
-                    isLoading: false,
-                }));
+            console.log('✅ Analysis successful:', response);
 
-                toast({
-                    title: "Analysis completed",
-                    description: "Data has been analyzed successfully.",
-                });
-            } else {
-                setError(response.message || 'Failed to analyze data');
-            }
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Failed to analyze data');
+            const analysisData = response.data.analysis;
+
+            // Set analysis data
+            setAnalysis({
+                dataType: analysisData.dataType,
+                insights: analysisData.insights,
+                confidence: analysisData.confidence,
+                processingTime: analysisData.processingTime,
+                timestamp: analysisData.timestamp
+            });
+
+            // Set KPIs
+            setKpis(analysisData.kpis);
+
+            // Set visualizations
+            setVisualizations(analysisData.visualizations);
+
+            // Set dashboard
+            setDashboard({
+                id: fileId,
+                title: analysisData.dashboard.title,
+                description: analysisData.dashboard.description,
+                dataType: analysisData.dataType,
+                confidence: analysisData.confidence,
+                processingTime: analysisData.processingTime,
+                timestamp: analysisData.timestamp
+            });
+
+        } catch (err) {
+            console.error('❌ Analysis failed:', err);
+            setError(err instanceof Error ? err.message : 'Analysis failed');
+        } finally {
+            setIsLoading(false);
         }
-    }, [state.fileId, setLoading, setError, toast]);
+    }, [fileId]);
 
     const generateKPIs = useCallback(async (userPlan: string = 'free') => {
-        if (!state.fileId) {
-            setError('No file uploaded. Please upload a file first.');
-            return;
-        }
+        if (!fileId) return;
 
-        setLoading(true);
         try {
-            const response = await apiService.getKPISuggestions(state.fileId, userPlan);
-
-            if (response.success && response.data) {
-                setState(prev => ({
-                    ...prev,
-                    kpis: response.data!.kpis,
-                    isLoading: false,
-                }));
-
-                toast({
-                    title: "KPIs generated",
-                    description: `${response.data!.kpis.length} KPIs have been suggested.`,
-                });
-            } else {
-                setError(response.message || 'Failed to generate KPIs');
-            }
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Failed to generate KPIs');
+            const response = await ApiService.getKPIs(fileId, userPlan);
+            setKpis(response.data.kpis);
+        } catch (err) {
+            console.error('KPI generation failed:', err);
         }
-    }, [state.fileId, setLoading, setError, toast]);
+    }, [fileId]);
 
     const generateVisualizations = useCallback(async (userPlan: string = 'free') => {
-        if (!state.fileId) {
-            setError('No file uploaded. Please upload a file first.');
-            return;
-        }
+        if (!fileId || kpis.length === 0) return;
 
-        setLoading(true);
         try {
-            const response = await apiService.getVisualizationRecommendations(
-                state.fileId,
-                state.kpis,
-                userPlan
-            );
-
-            if (response.success && response.data) {
-                setState(prev => ({
-                    ...prev,
-                    visualizations: response.data!.visualizations,
-                    isLoading: false,
-                }));
-
-                toast({
-                    title: "Visualizations generated",
-                    description: `${response.data!.visualizations.length} visualizations have been suggested.`,
-                });
-            } else {
-                setError(response.message || 'Failed to generate visualizations');
-            }
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Failed to generate visualizations');
+            const response = await ApiService.getVisualizations(fileId, kpis, userPlan);
+            setVisualizations(response.data.visualizations);
+        } catch (err) {
+            console.error('Visualization generation failed:', err);
         }
-    }, [state.fileId, state.kpis, setLoading, setError, toast]);
+    }, [fileId, kpis]);
 
-    const generateDashboard = useCallback(async (options: {
-        customTitle?: string;
-        customDescription?: string;
-        theme?: string;
-        userPlan?: string;
-    } = {}) => {
-        if (!state.fileId || !state.analysis) {
-            setError('Missing required data. Please analyze your data first.');
-            return;
-        }
+    const generateDashboard = useCallback(async (options: { userPlan: string }) => {
+        if (!analysis) return;
 
-        setLoading(true);
-        try {
-            const response = await apiService.generateDashboard(
-                state.fileId,
-                state.analysis,
-                state.kpis,
-                state.visualizations,
-                options.userPlan || 'free',
-                options.customTitle,
-                options.customDescription,
-                options.theme || 'default'
-            );
+        const dashboardData: DashboardData = {
+            id: fileId || undefined,
+            title: analysis.dataType ? `${analysis.dataType} Dashboard` : 'Data Dashboard',
+            description: `AI-powered analysis of your ${analysis.dataType || 'data'} with insights from Granite AI.`,
+            dataType: analysis.dataType,
+            confidence: analysis.confidence,
+            processingTime: analysis.processingTime,
+            timestamp: analysis.timestamp
+        };
 
-            if (response.success && response.data) {
-                setState(prev => ({
-                    ...prev,
-                    dashboard: response.data!.dashboard,
-                    isLoading: false,
-                }));
+        setDashboard(dashboardData);
+    }, [analysis, fileId]);
 
-                toast({
-                    title: "Dashboard generated",
-                    description: "Your dashboard has been created successfully.",
-                });
-            } else {
-                setError(response.message || 'Failed to generate dashboard');
-            }
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Failed to generate dashboard');
-        }
-    }, [state.fileId, state.analysis, state.kpis, state.visualizations, setLoading, setError, toast]);
-
-    const generatePDF = useCallback(async (options: any = {}, userPlan: string = 'free'): Promise<string | null> => {
-        if (!state.dashboard) {
-            setError('No dashboard available. Please generate a dashboard first.');
+    const generatePDF = useCallback(async (userPlan: string = 'free') => {
+        if (!dashboard || !analysis || !kpis || !visualizations) {
+            setError('Dashboard data incomplete for PDF generation');
             return null;
         }
 
-        setLoading(true);
+        setIsLoading(true);
+        setError(null);
+
         try {
-            const response = await apiService.generatePDF(state.dashboard, options, userPlan);
+            // Prepare dashboard data for PDF generation
+            const pdfDashboardData = {
+                id: dashboard.id,
+                title: dashboard.title,
+                description: dashboard.description,
+                dataType: analysis.dataType,
+                confidence: analysis.confidence,
+                processingTime: analysis.processingTime,
+                timestamp: analysis.timestamp,
+                kpis: kpis,
+                visualizations: visualizations.filter(viz => viz.recommended), // Only recommended visualizations
+                metadata: {
+                    generatedAt: new Date().toISOString(),
+                    dataSource: {
+                        rowCount: rawData?.length || 0,
+                        columnCount: rawData?.[0] ? Object.keys(rawData[0]).length : 0
+                    },
+                    analysis: {
+                        insights: analysis.insights
+                    }
+                }
+            };
 
-            if (response.success && response.data) {
-                setLoading(false);
+            const response = await ApiService.generatePDF(pdfDashboardData, userPlan);
 
-                toast({
-                    title: "PDF generated",
-                    description: "Your PDF has been generated successfully.",
-                });
-
-                return response.data!.pdfUrl;
+            if (response.data.success) {
+                // Return the PDF URL for download
+                return response.data.data.pdfUrl;
             } else {
-                setError(response.message || 'Failed to generate PDF');
-                return null;
+                throw new Error(response.data.message || 'PDF generation failed');
             }
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Failed to generate PDF');
+        } catch (err: any) {
+            console.error('PDF generation failed:', err);
+            setError(err.response?.data?.message || err.message || 'Failed to generate PDF');
             return null;
+        } finally {
+            setIsLoading(false);
         }
-    }, [state.dashboard, setLoading, setError, toast]);
+    }, [dashboard, analysis, kpis, visualizations, rawData]);
 
     const resetDashboard = useCallback(() => {
-        setState({
-            fileId: null,
-            analysis: null,
-            kpis: [],
-            visualizations: [],
-            dashboard: null,
-            isLoading: false,
-            error: null,
-        });
-    }, []);
-
-    const setKPIs = useCallback((kpis: any[]) => {
-        setState(prev => ({ ...prev, kpis }));
-    }, []);
-
-    const setVisualizations = useCallback((visualizations: any[]) => {
-        setState(prev => ({ ...prev, visualizations }));
+        setFileId(null);
+        setAnalysis(null);
+        setKpis([]);
+        setVisualizations([]);
+        setDashboard(null);
+        setError(null);
     }, []);
 
     return {
-        ...state,
+        fileId,
+        analysis,
+        kpis,
+        visualizations,
+        dashboard,
+        isLoading,
+        error,
         uploadFile,
         analyzeData,
         generateKPIs,
         generateVisualizations,
         generateDashboard,
         generatePDF,
-        resetDashboard,
-        setKPIs,
-        setVisualizations,
+        resetDashboard
     };
-}
+};

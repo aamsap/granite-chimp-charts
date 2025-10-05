@@ -10,10 +10,10 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
-        <div 
+        <div
           className="absolute inset-0 opacity-10"
           style={{
             backgroundImage: `url(${heroBg})`,
@@ -22,7 +22,7 @@ const Home = () => {
           }}
         />
         <div className="absolute inset-0 bg-gradient-hero opacity-5" />
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center space-y-8">
             <h1 className="text-5xl md:text-6xl font-bold leading-tight">
@@ -35,7 +35,7 @@ const Home = () => {
               Upload your CSV or Excel file and let our AI create stunning visualizations and insights automatically. No coding required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/app">
+              <Link to="/chimp-chart">
                 <Button size="lg" className="bg-gradient-primary hover:shadow-glow transition-all duration-300">
                   Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -62,7 +62,7 @@ const Home = () => {
               From data to dashboard in four simple steps
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="border-2 hover:shadow-card transition-all duration-300">
               <CardHeader>
@@ -124,7 +124,7 @@ const Home = () => {
                 Why Choose Chimp Chart?
               </h2>
             </div>
-            
+
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center space-y-2">
                 <div className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
@@ -134,7 +134,7 @@ const Home = () => {
                   Create professional dashboards without any technical skills
                 </p>
               </div>
-              
+
               <div className="text-center space-y-2">
                 <div className="text-4xl font-bold bg-gradient-secondary bg-clip-text text-transparent">
                   AI-Powered
@@ -143,7 +143,7 @@ const Home = () => {
                   Intelligent analysis suggests the best visualizations for your data
                 </p>
               </div>
-              
+
               <div className="text-center space-y-2">
                 <div className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                   Instant
@@ -167,7 +167,7 @@ const Home = () => {
             <p className="text-lg text-primary-foreground/90">
               Start creating beautiful dashboards today. No credit card required.
             </p>
-            <Link to="/app">
+            <Link to="/chimp-chart">
               <Button size="lg" variant="secondary" className="shadow-glow">
                 Start Free Now
                 <ArrowRight className="ml-2 h-5 w-5" />

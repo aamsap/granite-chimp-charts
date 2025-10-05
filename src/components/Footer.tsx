@@ -17,7 +17,7 @@ const Footer = () => {
               Transform your data into beautiful visualizations with AI-powered insights.
             </p>
           </div>
-          
+
           <div>
             <h3 className="font-semibold mb-4">Product</h3>
             <ul className="space-y-2">
@@ -32,13 +32,13 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/app" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/chimp-chart" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Try Now
                 </Link>
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h3 className="font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
@@ -49,7 +49,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h3 className="font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
@@ -66,7 +66,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        
+
         <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
           © {new Date().getFullYear()} Chimp Chart. All rights reserved.
         </div>

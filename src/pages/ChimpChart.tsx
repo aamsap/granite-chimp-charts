@@ -59,10 +59,8 @@ const ChimpChart = () => {
     }
 
     try {
+      // Analysis is already done in uploadFile, but we can trigger it again if needed
       await analyzeData(userPlan);
-      await generateKPIs(userPlan);
-      await generateVisualizations(userPlan);
-      await generateDashboard({ userPlan });
     } catch (error) {
       console.error('Analysis failed:', error);
     }
@@ -71,11 +69,11 @@ const ChimpChart = () => {
   const handleDownloadPDF = async () => {
     if (!dashboard) return;
 
-    const pdfUrl = await generatePDF({}, userPlan);
+    const pdfUrl = await generatePDF(userPlan);
     if (pdfUrl) {
       // Create download link
       const link = document.createElement('a');
-      link.href = pdfUrl;
+      link.href = `http://localhost:3001${pdfUrl}`;
       link.download = `${dashboard.title || 'dashboard'}.pdf`;
       document.body.appendChild(link);
       link.click();
@@ -112,8 +110,8 @@ const ChimpChart = () => {
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                   className={`border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 ${isDragging
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
                     }`}
                 >
                   <input
@@ -155,6 +153,16 @@ const ChimpChart = () => {
                   </label>
                 </div>
 
+                {error && (
+                  <div className="mt-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5 text-destructive" />
+                      <p className="text-destructive font-medium">Error</p>
+                    </div>
+                    <p className="text-destructive/80 text-sm mt-1">{error}</p>
+                  </div>
+                )}
+
                 {fileId && (
                   <div className="mt-6 space-y-4">
                     <div className="flex gap-2">
@@ -167,21 +175,71 @@ const ChimpChart = () => {
                         {isLoading ? (
                           <>
                             <Sparkles className="mr-2 h-5 w-5 animate-spin" />
-                            Analyzing...
+                            {analysis ? 'Re-analyzing...' : 'Analyzing with Granite AI...'}
                           </>
                         ) : (
                           <>
                             <BarChart3 className="mr-2 h-5 w-5" />
-                            Analyze & Generate Dashboard
+                            {analysis ? 'Re-analyze Data' : 'Analyze & Generate Dashboard'}
                           </>
                         )}
                       </Button>
                     </div>
 
+                    {analysis && (
+                      <div className="space-y-4">
+                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                          <h3 className="font-semibold mb-2 text-green-800">✅ Analysis Complete!</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div>
+                              <span className="font-medium">Data Type:</span>
+                              <p className="text-muted-foreground capitalize">{analysis.dataType}</p>
+                            </div>
+                            <div>
+                              <span className="font-medium">Confidence:</span>
+                              <p className="text-muted-foreground">{(analysis.confidence * 100).toFixed(1)}%</p>
+                            </div>
+                            <div>
+                              <span className="font-medium">Processing Time:</span>
+                              <p className="text-muted-foreground">{(analysis.processingTime / 1000).toFixed(1)}s</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {analysis.insights && analysis.insights.length > 0 && (
+                          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <h4 className="font-semibold mb-3 text-blue-800">🧠 AI Insights</h4>
+                            <div className="space-y-2">
+                              {analysis.insights.slice(0, 3).map((insight, index) => (
+                                <div key={index} className="text-sm">
+                                  <span className="font-medium">{insight.title}:</span>
+                                  <p className="text-muted-foreground">{insight.description}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {kpis && kpis.length > 0 && (
+                          <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                            <h4 className="font-semibold mb-3 text-purple-800">📊 Key Metrics</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                              {kpis.slice(0, 4).map((kpi, index) => (
+                                <div key={index} className="flex justify-between">
+                                  <span className="font-medium">{kpi.name}:</span>
+                                  <span className="text-muted-foreground">{kpi.type}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {dashboard && (
                       <div className="space-y-4">
                         <div className="p-4 bg-muted/50 rounded-lg">
-                          <h3 className="font-semibold mb-2">Dashboard Generated!</h3>
+                          <h3 className="font-semibold mb-2">🎯 Dashboard Generated!</h3>
                           <p className="text-sm text-muted-foreground mb-3">
                             {dashboard.description}
                           </p>

@@ -24,9 +24,11 @@ dist-ssr
 backend/uploads/*
 backend/pdfs/*
 backend/configs/*
+backend/temp/*
 !backend/uploads/.gitkeep
 !backend/pdfs/.gitkeep
 !backend/configs/.gitkeep
+!backend/temp/.gitkeep
 
 # Editor directories and files
 .vscode/*
