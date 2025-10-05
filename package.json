@@ -2,7 +2,6 @@
   "name": "chimp-chart",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
   "description": "AI-Powered Dashboard Generator - Transform your CSV and Excel data into beautiful dashboards",
   "keywords": [
     "dashboard",
