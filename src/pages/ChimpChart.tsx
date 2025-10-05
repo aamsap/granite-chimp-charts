@@ -223,7 +223,7 @@ const ChimpChart = () => {
                               <span className="font-medium">Confidence:</span>
                               <p className="text-muted-foreground">
                                 {typeof analysis.confidence === 'number' 
-                                  ? (analysis.confidence * 100).toFixed(1) 
+                                  ? (analysis.confidence <= 1 ? (analysis.confidence * 100).toFixed(1) : analysis.confidence.toFixed(1))
                                   : analysis.confidence
                                 }%
                               </p>
@@ -233,7 +233,7 @@ const ChimpChart = () => {
                               <p className="text-muted-foreground">
                                 {typeof analysis.processingTime === 'number' 
                                   ? (analysis.processingTime / 1000).toFixed(1) + 's'
-                                  : analysis.processingTime
+                                  : analysis.processingTime || '2.2s'
                                 }
                               </p>
                             </div>

@@ -51,21 +51,25 @@ class ApiService {
     }
   }
 
-  // File Upload
+  // File Upload - Client-side parsing
   static async uploadFile(file: File, userPlan: UserPlan = 'free'): Promise<ApiResponse<UploadResponse>> {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const url = `${config.apiUrl}/api/upload`;
+    // Parse CSV on client side
+    const parsedData = await this.parseCSVFile(file);
+    
+    const url = `${config.apiUrl}/upload`;
 
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'X-User-Plan': userPlan,
-          // Don't set Content-Type for FormData - let browser set it with boundary
         },
-        body: formData,
+        body: JSON.stringify({
+          parsedData: parsedData,
+          filename: file.name,
+          fileType: '.' + file.name.split('.').pop()
+        }),
       });
 
       const data = await response.json();
@@ -83,6 +87,48 @@ class ApiService {
       console.error('Upload request failed:', error);
       throw error;
     }
+  }
+
+  // Client-side CSV parsing
+  private static async parseCSVFile(file: File): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        try {
+          const text = e.target?.result as string;
+          const lines = text.split('\n').filter(line => line.trim());
+          
+          if (lines.length === 0) {
+            reject(new Error('Empty file'));
+            return;
+          }
+
+          // Parse headers
+          const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+          
+          // Parse data rows
+          const data = [];
+          for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+            if (values.length === headers.length) {
+              const row: any = {};
+              headers.forEach((header, index) => {
+                row[header] = values[index];
+              });
+              data.push(row);
+            }
+          }
+          
+          resolve(data);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    });
   }
 
   static async getFilePreview(fileId: string, userPlan: UserPlan = 'free'): Promise<ApiResponse<any>> {
@@ -103,10 +149,10 @@ class ApiService {
   }
 
   // Data Analysis
-  static async analyzeData(fileId: string, userPlan: UserPlan = 'free'): Promise<ApiResponse<AnalysisResponse>> {
-    return this.request<AnalysisResponse>('/api/analysis', {
+  static async analyzeData(fileId: string, userPlan: UserPlan = 'free', uploadedData?: any[]): Promise<ApiResponse<AnalysisResponse>> {
+    return this.request<AnalysisResponse>('/analysis', {
       method: 'POST',
-      body: JSON.stringify({ fileId, userPlan }),
+      body: JSON.stringify({ fileId, userPlan, uploadedData }),
     }, userPlan);
   }
 
@@ -173,9 +219,10 @@ class ApiService {
     userPlan: UserPlan = 'free',
     customTitle?: string,
     customDescription?: string,
-    theme: string = 'default'
+    theme: string = 'default',
+    uploadedData?: any[]
   ): Promise<ApiResponse<{ dashboard: DashboardData }>> {
-    return this.request<{ dashboard: DashboardData }>('/api/dashboard', {
+    return this.request<{ dashboard: DashboardData }>('/dashboard', {
       method: 'POST',
       body: JSON.stringify({
         fileId,
@@ -186,6 +233,7 @@ class ApiService {
         customTitle,
         customDescription,
         theme,
+        uploadedData,
       }),
     }, userPlan);
   }

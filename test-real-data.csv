@@ -1,0 +1,16 @@
+Date,Revenue,Quantity,Product,Category
+2024-01-01,1000,10,Product A,Electronics
+2024-01-02,1500,15,Product B,Clothing
+2024-01-03,2000,20,Product A,Electronics
+2024-01-04,1200,12,Product C,Books
+2024-01-05,1800,18,Product B,Clothing
+2024-01-06,2200,22,Product A,Electronics
+2024-01-07,1600,16,Product B,Clothing
+2024-01-08,1900,19,Product C,Books
+2024-01-09,2100,21,Product A,Electronics
+2024-01-10,1400,14,Product B,Clothing
+2024-01-11,2300,23,Product A,Electronics
+2024-01-12,1700,17,Product C,Books
+2024-01-13,2000,20,Product A,Electronics
+2024-01-14,1500,15,Product B,Clothing
+2024-01-15,1800,18,Product A,Electronics

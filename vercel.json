@@ -19,10 +19,10 @@
   },
   "functions": {
     "api/upload.js": {
-      "maxDuration": 30
+      "maxDuration": 10
     },
     "api/analysis.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     },
     "api/dashboard.js": {
       "maxDuration": 30

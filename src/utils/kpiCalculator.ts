@@ -139,15 +139,7 @@ export class KPICalculator {
       return value.toFixed(maxDecimals);
     }
     
-    // For large numbers, use locale formatting with 2 decimal max
-    if (Math.abs(value) >= 1000) {
-      return value.toLocaleString(undefined, {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2
-      });
-    }
-    
-    // For smaller numbers, limit to 2 decimal places
+    // Always use toFixed(2) for consistent 2 decimal places
     return value.toFixed(2);
   }
 

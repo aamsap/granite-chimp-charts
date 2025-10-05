@@ -38,7 +38,8 @@ export const useDashboard = (): UseDashboardReturn => {
       // Auto-analyze after upload
       setIsLoading(true);
       console.log('🔍 Analyzing data with Granite AI...');
-      const analysisResponse = await ApiService.analyzeData(newFileId, userPlan);
+      const uploadedData = response.data?.fullData || response.data?.preview || [];
+      const analysisResponse = await ApiService.analyzeData(newFileId, userPlan, uploadedData);
 
       console.log('✅ Analysis successful:', analysisResponse);
 
@@ -63,25 +64,9 @@ export const useDashboard = (): UseDashboardReturn => {
       // Set KPIs
       setKpis(analysisData.kpis);
 
-      // Calculate KPI values efficiently - use mock data for now
-      const mockData = [
-        { Date: '2024-01-01', Revenue: 1000, Quantity: 10, Product: 'A' },
-        { Date: '2024-01-02', Revenue: 1500, Quantity: 15, Product: 'B' },
-        { Date: '2024-01-03', Revenue: 2000, Quantity: 20, Product: 'A' },
-        { Date: '2024-01-04', Revenue: 1200, Quantity: 12, Product: 'C' },
-        { Date: '2024-01-05', Revenue: 1800, Quantity: 18, Product: 'B' },
-        { Date: '2024-01-06', Revenue: 2200, Quantity: 22, Product: 'A' },
-        { Date: '2024-01-07', Revenue: 1600, Quantity: 16, Product: 'B' },
-        { Date: '2024-01-08', Revenue: 1900, Quantity: 19, Product: 'C' },
-        { Date: '2024-01-09', Revenue: 2100, Quantity: 21, Product: 'A' },
-        { Date: '2024-01-10', Revenue: 1400, Quantity: 14, Product: 'B' },
-        { Date: '2024-01-11', Revenue: 2300, Quantity: 23, Product: 'A' },
-        { Date: '2024-01-12', Revenue: 1700, Quantity: 17, Product: 'C' },
-        { Date: '2024-01-13', Revenue: 2000, Quantity: 20, Product: 'A' },
-        { Date: '2024-01-14', Revenue: 1500, Quantity: 15, Product: 'B' },
-        { Date: '2024-01-15', Revenue: 1800, Quantity: 18, Product: 'A' }
-      ];
-      const calculated = KPICalculator.calculateKPIs(analysisData.kpis, mockData);
+      // Calculate KPI values efficiently - use real data from analysis
+      const realData = analysisResponse.data?.analysis?.visualizations?.[0]?.data || [];
+      const calculated = KPICalculator.calculateKPIs(analysisData.kpis, realData);
       setCalculatedKPIs(calculated);
 
       // Set visualizations
@@ -99,7 +84,7 @@ export const useDashboard = (): UseDashboardReturn => {
         insights: analysisData.insights,
         kpis: analysisData.kpis,
         visualizations: analysisData.visualizations,
-        rawData: mockData
+        rawData: realData
       };
       
       setDashboard(dashboardData);
@@ -161,25 +146,9 @@ export const useDashboard = (): UseDashboardReturn => {
       // Set KPIs
       setKpis(analysisData.kpis);
 
-      // Calculate KPI values efficiently - use mock data for now
-      const mockData = [
-        { Date: '2024-01-01', Revenue: 1000, Quantity: 10, Product: 'A' },
-        { Date: '2024-01-02', Revenue: 1500, Quantity: 15, Product: 'B' },
-        { Date: '2024-01-03', Revenue: 2000, Quantity: 20, Product: 'A' },
-        { Date: '2024-01-04', Revenue: 1200, Quantity: 12, Product: 'C' },
-        { Date: '2024-01-05', Revenue: 1800, Quantity: 18, Product: 'B' },
-        { Date: '2024-01-06', Revenue: 2200, Quantity: 22, Product: 'A' },
-        { Date: '2024-01-07', Revenue: 1600, Quantity: 16, Product: 'B' },
-        { Date: '2024-01-08', Revenue: 1900, Quantity: 19, Product: 'C' },
-        { Date: '2024-01-09', Revenue: 2100, Quantity: 21, Product: 'A' },
-        { Date: '2024-01-10', Revenue: 1400, Quantity: 14, Product: 'B' },
-        { Date: '2024-01-11', Revenue: 2300, Quantity: 23, Product: 'A' },
-        { Date: '2024-01-12', Revenue: 1700, Quantity: 17, Product: 'C' },
-        { Date: '2024-01-13', Revenue: 2000, Quantity: 20, Product: 'A' },
-        { Date: '2024-01-14', Revenue: 1500, Quantity: 15, Product: 'B' },
-        { Date: '2024-01-15', Revenue: 1800, Quantity: 18, Product: 'A' }
-      ];
-      const calculated = KPICalculator.calculateKPIs(analysisData.kpis, mockData);
+      // Calculate KPI values efficiently - use real uploaded data
+      const realData = uploadedData.length > 0 ? uploadedData : response.data?.preview || [];
+      const calculated = KPICalculator.calculateKPIs(analysisData.kpis, realData);
       setCalculatedKPIs(calculated);
 
       // Set visualizations
@@ -197,7 +166,7 @@ export const useDashboard = (): UseDashboardReturn => {
         insights: analysisData.insights,
         kpis: analysisData.kpis,
         visualizations: analysisData.visualizations,
-        rawData: mockData
+        rawData: realData
       };
       
       setDashboard(dashboardData);
@@ -246,22 +215,33 @@ export const useDashboard = (): UseDashboardReturn => {
   const generateDashboard = useCallback(async (options: { userPlan: UserPlan }) => {
     if (!analysis || !fileId) return;
 
-    const dashboardData: DashboardData = {
-      id: fileId,
-      title: analysis.dashboard.title,
-      description: analysis.dashboard.description,
-      dataType: analysis.dataType,
-      confidence: analysis.confidence,
-      processingTime: analysis.processingTime,
-      timestamp: analysis.timestamp,
-      insights: analysis.insights,
-      kpis: analysis.kpis,
-      visualizations: analysis.visualizations,
-      rawData: []
-    };
-
-    setDashboard(dashboardData);
-  }, [analysis, fileId, dashboard?.rawData]);
+    try {
+      const response = await ApiService.generateDashboard(
+        fileId,
+        analysis,
+        kpis,
+        visualizations,
+        options.userPlan,
+        analysis.dashboard?.title,
+        analysis.dashboard?.description,
+        'default',
+        dashboard?.rawData
+      );
+      setDashboard(response.dashboard);
+      
+      // Save dashboard to temp storage
+      try {
+        const dashboardStorage = DashboardStorage.getInstance();
+        await dashboardStorage.saveDashboard(fileId, response.dashboard);
+        console.log('✅ Dashboard saved to temp storage');
+      } catch (error) {
+        console.warn('⚠️ Failed to save dashboard to temp storage:', error);
+      }
+    } catch (err) {
+      console.error('❌ Dashboard generation failed:', err);
+      setError(ErrorHandler.getErrorMessage(err));
+    }
+  }, [analysis, fileId, kpis, visualizations, dashboard?.rawData]);
 
   const generatePDF = useCallback(async (userPlan: UserPlan = 'free') => {
     // PDF functionality removed - use print instead
