@@ -87,12 +87,16 @@ class DashboardStorage {
     try {
       const response = await fetch(`${config.apiUrl}/temp/get/${id}`);
       if (response.ok) {
-        const result = await response.json();
-        dashboard = result.data as DashboardData;
-        console.log(`✅ Dashboard retrieved from temp storage with ID: ${id}`);
-        // Restore to memory for future access
-        this.dashboards.set(id, dashboard);
-        return dashboard;
+        try {
+          const result = await response.json();
+          dashboard = result.data as DashboardData;
+          console.log(`✅ Dashboard retrieved from temp storage with ID: ${id}`);
+          // Restore to memory for future access
+          this.dashboards.set(id, dashboard);
+          return dashboard;
+        } catch (jsonError) {
+          console.warn('Failed to parse JSON from temp storage:', jsonError);
+        }
       }
     } catch (error) {
       console.warn('Failed to retrieve dashboard from temp storage:', error);

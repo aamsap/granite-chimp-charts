@@ -34,16 +34,27 @@ class ApiService {
 
     try {
       const response = await fetch(url, requestConfig);
-      const data = await response.json();
-
+      
+      // Check if response is ok before parsing JSON
       if (!response.ok) {
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (jsonError) {
+          // If JSON parsing fails, use the status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        
         throw ErrorHandler.createApiError(
           response.status,
-          data.message || `HTTP error! status: ${response.status}`,
-          data
+          errorMessage,
+          { status: response.status, statusText: response.statusText }
         );
       }
 
+      // Parse JSON only if response is ok
+      const data = await response.json();
       return data;
     } catch (error) {
       console.error('API request failed:', error);
@@ -72,16 +83,24 @@ class ApiService {
         }),
       });
 
-      const data = await response.json();
-
+      // Check if response is ok before parsing JSON
       if (!response.ok) {
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (jsonError) {
+          errorMessage = response.statusText || errorMessage;
+        }
+        
         throw ErrorHandler.createApiError(
           response.status,
-          data.message || `HTTP error! status: ${response.status}`,
-          data
+          errorMessage,
+          { status: response.status, statusText: response.statusText }
         );
       }
 
+      const data = await response.json();
       return data;
     } catch (error) {
       console.error('Upload request failed:', error);
