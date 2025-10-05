@@ -113,6 +113,18 @@ export function Dashboard({
             ...row,
             index: index + 1
           }));
+        } else if (viz.type === 'pie') {
+          // For pie charts, group by dataKey and count occurrences
+          const grouped = viz.data.reduce((acc: any, row: any) => {
+            const key = row[viz.dataKey];
+            acc[key] = (acc[key] || 0) + 1;
+            return acc;
+          }, {});
+          
+          return Object.entries(grouped).map(([key, value]) => ({
+            name: key,
+            value: value
+          }));
         } else {
           // For other charts, use data as is
           return viz.data;
@@ -125,12 +137,19 @@ export function Dashboard({
   // Render chart based on type - only render if recommended by AI
   const renderChart = useMemo(() => {
     return (viz: any) => {
-      // Only render if AI recommends this visualization
-      if (!viz.recommended) {
+      // Debug logging
+      console.log('🎨 Rendering chart:', viz);
+      console.log('📊 Chart data:', viz.data);
+      console.log('✅ Recommended:', viz.recommended);
+      
+      // Always render charts, don't filter by recommended
+      const chartData = prepareChartData(viz);
+      console.log('📈 Prepared chart data:', chartData);
+      
+      if (!chartData || chartData.length === 0) {
+        console.warn('⚠️ No chart data available for:', viz.title);
         return null;
       }
-
-      const chartData = prepareChartData(viz);
       const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
       // Debug: Log chart data for line charts
@@ -227,8 +246,8 @@ export function Dashboard({
                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
-                      dataKey={viz.dataKey || 'value'}
-                      nameKey={viz.xAxis || 'name'}
+                      dataKey="value"
+                      nameKey="name"
                     >
                       {chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
